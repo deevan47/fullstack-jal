@@ -7,8 +7,6 @@ import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-
-// Import your form page components and success page
 import Page1Title from './components/Page1Title';
 import Page2Personal from './components/Page2Personal';
 import Page3Building from './components/Page3Building';
