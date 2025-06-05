@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import { useFormikContext } from 'formik';
 
 const pageFields = [
-  
+  [],
   ['fullName', 'email', 'whatsapp', 'date'], 
   ['buildingName', 'mapLink', 'unitsCount'], 
   ['q1_1', 'q1_2', 'q1_3', 'q1_4'], 
@@ -25,6 +25,7 @@ function FormNavigation({ currentPage, setPage, validateForm, setTouched }) {
       true
     );
     const allErrors = await validateForm();
+    console.log('allErrors:', allErrors);
     const hasError = fields.some(field => allErrors[field]);
     if (!hasError) {
       setPage(currentPage + 1);

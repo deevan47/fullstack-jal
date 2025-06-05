@@ -7,6 +7,8 @@ import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+
+// Import your form page components and success page
 import Page1Title from './components/Page1Title';
 import Page2Personal from './components/Page2Personal';
 import Page3Building from './components/Page3Building';
@@ -17,6 +19,7 @@ import Page7Circularity from './components/Page7Circularity';
 import Page8GreenCover from './components/Page8GreenCover';
 import FormNavigation from './components/FormNavigation';
 import SuccessPage from './components/SuccessPage';
+import jalsmrutiBanner from './assets/jalsmruti-banner.png';
 
 const validationSchema = Yup.object({
   fullName: Yup.string()
@@ -157,7 +160,7 @@ function App() {
         <Paper elevation={6} sx={{ borderRadius: 4, p: 4, boxShadow: 6 }}>
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <img
-              src="/jal.png"
+              src={jalsmrutiBanner}
               alt="Jal Smruti Banner"
               style={{
                 maxWidth: '100%',
