@@ -1,15 +1,8 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const db = new sqlite3.Database(path.resolve(__dirname, 'scorecard.db'), (err) => {
-  if (err) {
-    console.error('Could not connect to database', err);
-  } else {
-    console.log('Connected to SQLite database');
-  }
-});
+const db = new sqlite3.Database(path.resolve(__dirname, 'scorecard.db'));
 
-// Create table if not exists
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS submissions (
@@ -25,7 +18,13 @@ db.serialize(() => {
       q2_1 TEXT, q2_2 TEXT, q2_3 TEXT, q2_4 TEXT, q2_5 TEXT, q2_6 TEXT,
       q3_1 TEXT, q3_2 TEXT, q3_3 TEXT,
       q4_1 TEXT, q4_2 TEXT, q4_3 TEXT,
-      q5_1 TEXT, q5_2 TEXT, q5_3 TEXT, q5_4 TEXT
+      q5_1 TEXT, q5_2 TEXT, q5_3 TEXT, q5_4 TEXT,
+      score_water_management REAL,
+      score_water_efficiency REAL,
+      score_groundwater REAL,
+      score_circularity REAL,
+      score_green_cover REAL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
 });
