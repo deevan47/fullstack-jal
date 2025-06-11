@@ -1,6 +1,7 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { Pool } = require('pg');
+require('dotenv').config();
 
+<<<<<<< HEAD
 const db = new sqlite3.Database(path.resolve(__dirname, 'scorecard.db'));
 
 db.serialize(() => {
@@ -32,3 +33,22 @@ CREATE TABLE IF NOT EXISTS submissions (
 
 
 module.exports = db;
+=======
+const pool = new Pool({
+  user: process.env.PG_USER,       
+  host: process.env.PG_HOST,       
+  database: process.env.PG_DATABASE, 
+  password: process.env.PG_PASSWORD, 
+  port: process.env.PG_PORT,       
+});
+
+pool.on('connect', () => {
+  console.log('✅ Connected to PostgreSQL');
+});
+
+pool.on('error', (err) => {
+  console.error('❌ PostgreSQL pool error:', err);
+});
+
+module.exports = pool;
+>>>>>>> 6e26362 (SQL to postgresql)
