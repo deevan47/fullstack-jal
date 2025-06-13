@@ -12,7 +12,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
+    "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.1.1",
     "@mui/material": "^7.1.1",
@@ -22,8 +22,8 @@
     "emailjs-com": "^3.2.0",
     "express": "^5.1.0",
     "framer-motion": "^12.16.0",
-    "html2canvas": "^1.4.1",
     "hoist-non-react-statics": "^3.3.2",
+    "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "nodemailer": "^7.0.3",
