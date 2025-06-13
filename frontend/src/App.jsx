@@ -24,8 +24,6 @@ import Success from "./pages/Success";
 import Preview from "./pages/Preview";
 import Banner from "./components/Banner";
 
-import sections from "./pages/sections";
-
 const steps = [
   "Start",
   "Contact Details",
