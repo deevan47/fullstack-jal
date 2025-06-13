@@ -1,7 +1,8 @@
+// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import commonjs from '@rollup/plugin-commonjs';
 
 export default defineConfig({
-  base: '/fullstack-jal/',
-  plugins: [react()],
+  plugins: [react(), commonjs()],
 });

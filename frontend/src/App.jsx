@@ -134,12 +134,13 @@ function App() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      {activeStep !== 0 && <Banner />}
+      {/* Show Banner on all steps except step 0 and 9 (Success page) */}
+      {activeStep !== 0 && activeStep !== steps.length - 1 && <Banner />}
 
+      {/* Stepper only if not on Success page */}
       {activeStep !== steps.length - 1 && (
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label, index) => {
-            // Decide if step label should be clickable
             const isClickable =
               isEditing && index !== 0 && index !== steps.length - 1;
 
@@ -161,7 +162,7 @@ function App() {
         </Stepper>
       )}
 
-      <Box sx={{ mt: 4}} ref={formRef}>
+      <Box sx={{ mt: 4 }} ref={formRef}>
         {getStepContent(activeStep)}
       </Box>
 

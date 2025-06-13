@@ -1,19 +1,23 @@
+/* Root Styles */
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  pawdding: 2rem;
+  padding: 2rem; /* Fixed typo: pawdding -> padding */
   text-align: center;
 }
 
+/* Logo Styles */
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -33,6 +37,7 @@
   }
 }
 
+/* Card Styles */
 .card {
   padding: 2em;
 }
@@ -41,11 +46,13 @@
   color: #888;
 }
 
+/* Body Background & Font */
 body {
   background: linear-gradient(120deg, #e0f7fa 0%, #fff 100%);
   font-family: 'Roboto', sans-serif;
 }
 
+/* Button Styles */
 .mui-btn {
   background: linear-gradient(90deg, #1976d2 0%, #64b5f6 100%);
   color: #fff;
@@ -60,3 +67,27 @@ body {
 .mui-btn:hover {
   background: linear-gradient(90deg, #1565c0 0%, #42a5f5 100%);
 }
+
+/* -------- PDF / Print Styles -------- */
+@media print {
+  .avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  table, tr, td, th {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+    .avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  
+  }
+
+

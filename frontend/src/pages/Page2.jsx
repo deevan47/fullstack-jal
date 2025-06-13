@@ -75,8 +75,8 @@ function Page2({ onNext, onBack, form }) {
     <div>
       <h1></h1>
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Typography variant="h5" gutterBottom color="primary">
-          <h2>Contact Person Details</h2>
+        <Typography variant="h5" component="h2" gutterBottom color="primary">
+          Contact Person Details
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
