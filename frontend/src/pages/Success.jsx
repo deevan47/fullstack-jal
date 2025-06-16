@@ -14,6 +14,8 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import bannerImage from "../assets/banner.png";
 
+
+
 const sections = [
   {
     title: "Water Management",
@@ -132,8 +134,7 @@ const sections = [
     questions: [
       {
         key: "q3_1",
-        label:
-          "3.1 Status of Groundwater dependency (percentage of total annual water consumed)",
+        label: "3.1 Status of Groundwater dependency (percentage of total annual water consumed)",
         options: {
           0: "(>50%)",
           1: "(20-50%)",
@@ -153,8 +154,7 @@ const sections = [
       },
       {
         key: "q3_3",
-        label:
-          "3.3 Status of Groundwater Recharge (percentage of Groundwater extraction)",
+        label: "3.3 Status of Groundwater Recharge (percentage of Groundwater extraction)",
         options: {
           0: "(<20%)",
           1: "(20-40%)",
@@ -245,19 +245,25 @@ const sections = [
     ],
   },
 ];
-// Helper Functions
 function getColorForScore(score) {
-  if (score < 1) return "#e74c3c"; // red
-  else if (score < 2) return "#f39c12"; // orange
-  else return "#27ae60"; // green
+  if (score <= 1) {
+    // interpolate between red (#e74c3c) and orange (#f39c12)
+    return interpolateColor("#e74c3c", "#f39c12", score);
+  } else if (score <= 2) {
+    // interpolate between orange (#f39c12) and yellow (#f1c40f)
+    return interpolateColor("#f39c12", "#f1c40f", score - 1);
+  } else if (score <= 3) {
+    // interpolate between yellow (#f1c40f) and green (#27ae60)
+    return interpolateColor("#f1c40f", "#27ae60", score - 2);
+  } else {
+    return "#27ae60"; // clamp max to green
+  }
 }
 
 function calculateSectionScore(section, form) {
-  let total = 0,
-    count = 0;
+  let total = 0, count = 0;
   section.questions.forEach((q) => {
     const val = form[q.key];
-    // exclude not applicable values from scoring
     if (!(q.notApplicableValue && val === q.notApplicableValue)) {
       const numVal = Number(val);
       if (!isNaN(numVal)) {
@@ -270,8 +276,7 @@ function calculateSectionScore(section, form) {
 }
 
 function calculateOverallAverage(form, sections) {
-  let total = 0,
-    count = 0;
+  let total = 0, count = 0;
   sections.forEach((section) =>
     section.questions.forEach((q) => {
       const val = form[q.key];
@@ -302,7 +307,29 @@ function hexToRgb(hex) {
   };
 }
 
-// Placeholder Banner component (replace with your actual Banner)
+function rgbToHex({ r, g, b }) {
+  return (
+    "#" +
+    [r, g, b]
+      .map((x) => {
+        const hex = x.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      })
+      .join("")
+  );
+}
+
+function interpolateColor(color1, color2, factor) {
+  const c1 = hexToRgb(color1);
+  const c2 = hexToRgb(color2);
+  const result = {
+    r: Math.round(c1.r + (c2.r - c1.r) * factor),
+    g: Math.round(c1.g + (c2.g - c1.g) * factor),
+    b: Math.round(c1.b + (c2.b - c1.b) * factor),
+  };
+  return rgbToHex(result);
+}
+
 const Banner = () => (
   <Box
     component="img"
@@ -318,14 +345,12 @@ const Success = ({ form, sections, onRestart }) => {
   const maturity = getMaturityLevel(avg);
   const overallColor = getColorForScore(avg);
 
-  // Manage refs for potential future use (scroll, print, etc)
   const addRef = (el) => {
     if (el && !containerRefs.current.includes(el)) {
       containerRefs.current.push(el);
     }
   };
 
-  // Convert image URL to base64 for jsPDF
   const getImageBase64 = (url) =>
     new Promise((resolve) => {
       const img = new Image();
@@ -336,17 +361,12 @@ const Success = ({ form, sections, onRestart }) => {
         canvas.height = img.height;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
-        const dataURL = canvas.toDataURL("image/png");
-        resolve(dataURL);
+        resolve(canvas.toDataURL("image/png"));
       };
-      img.onerror = () => {
-        // fallback if image fails
-        resolve(null);
-      };
+      img.onerror = () => resolve(null);
       img.src = url;
     });
 
-  // Generate PDF Blob for download or sending
   const generatePdfBlob = async () => {
     const pdf = new jsPDF("p", "pt");
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -360,29 +380,16 @@ const Success = ({ form, sections, onRestart }) => {
 
     pdf.setFontSize(14);
     pdf.setTextColor(0, 0, 0);
-    pdf.text(`Name: ${form.fullName || "N/A"}`, pageWidth / 2, y, {
-      align: "center",
-    });
+    pdf.text(`Name: ${form.fullName || "N/A"}`, pageWidth / 2, y, { align: "center" });
     y += 20;
-    pdf.text(`Email: ${form.email || "N/A"}`, pageWidth / 2, y, {
-      align: "center",
-    });
+    pdf.text(`Email: ${form.email || "N/A"}`, pageWidth / 2, y, { align: "center" });
     y += 20;
     pdf.setFillColor(...Object.values(hexToRgb(overallColor)));
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(14);
     pdf.rect(40, y, pageWidth - 80, 50, "F");
-    pdf.text(
-      `Overall Average Score: ${avg.toFixed(2)}`,
-      pageWidth / 2,
-      y + 18,
-      {
-        align: "center",
-      }
-    );
-    pdf.text(`Maturity Level: ${maturity}`, pageWidth / 2, y + 38, {
-      align: "center",
-    });
+    pdf.text(`Overall Average Score: ${avg.toFixed(2)}`, pageWidth / 2, y + 18, { align: "center" });
+    pdf.text(`Maturity Level: ${maturity}`, pageWidth / 2, y + 38, { align: "center" });
     y += 70;
 
     for (const section of sections) {
@@ -391,7 +398,6 @@ const Success = ({ form, sections, onRestart }) => {
       const sectionColor = getColorForScore(sectionAvg);
       const rgb = hexToRgb(sectionColor);
 
-      // Estimate upcoming height: header (35) + approx 25px per row
       const estimatedHeight = 35 + section.questions.length * 25;
       const pageHeight = pdf.internal.pageSize.getHeight();
 
@@ -405,19 +411,9 @@ const Success = ({ form, sections, onRestart }) => {
       pdf.setFontSize(12);
       pdf.setFont(undefined, "bold");
       pdf.rect(40, y, pageWidth - 80, 25, "F");
-
       pdf.text(`${section.title}`, 50, y + 17);
-
-      pdf.text(
-        `Average Score: ${sectionAvg.toFixed(2)}`,
-        pageWidth - 50,
-        y + 17,
-        {
-          align: "right",
-        }
-      );
-
-      y += 35;
+      pdf.text(`Average Score: ${sectionAvg.toFixed(2)}`, pageWidth - 50, y + 17, { align: "right" });
+      y += 25;
 
       const body = section.questions.map((q) => {
         const val = form[q.key];
@@ -454,21 +450,113 @@ const Success = ({ form, sections, onRestart }) => {
       y = pdf.lastAutoTable.finalY + 30;
     }
 
+// Add quote
+pdf.setFontSize(11);
+pdf.setTextColor(0, 0, 0);
+pdf.setFont(undefined, "normal");
+
+const quote = [
+  "The driving force behind ",
+  "Jalsmruti",
+  " is empowering community to restore India's cherished legacy—a land that was once celebrated as ",
+  "'Sujalaam Sufalaam'",
+  ", abundant in water and lush vegetation."
+];
+
+const quoteLine = quote.map((word, i) => {
+  if (word === "Jalsmruti") return `%Jalsmruti%`;
+  if (word === "'Sujalaam Sufalaam'") return `%Sujalaam%`;
+  return word;
+}).join("");
+
+let parts = quoteLine.split(/(%.*?%)/);
+let cursorX = pageWidth / 2 - 200;
+let quoteY = y;
+
+pdf.setFontSize(11);
+pdf.setFont(undefined, "normal");
+
+parts.forEach((part) => {
+  if (part === "%Jalsmruti%") {
+    pdf.setTextColor(0, 102, 204); // Blue
+    pdf.text("Jalsmruti", pageWidth / 2, quoteY, { align: "center" });
+  } else if (part === "%Sujalaam%") {
+    pdf.setTextColor(0, 128, 0); // Green
+    pdf.text("'Sujalaam Sufalaam'", pageWidth / 2, quoteY + 15, { align: "center" });
+  }
+});
+
+quoteY += 35;
+pdf.setFontSize(12);
+pdf.setTextColor(0, 0, 0);
+pdf.setFont(undefined, "bold");
+pdf.text("Your donation to Jal Smruti Foundation is tax deductible", 40, quoteY);
+
+quoteY += 20;
+pdf.setFontSize(10);
+pdf.setFont(undefined, "normal");
+
+const bankDetails = [
+  "Bank Details",
+  "Name of Account - Jjala Ssmruti Foundation",
+  "Name of Bank - State Bank of India",
+  "IFSC Code - SBIN0003866",
+  "Account Number - 40131834676",
+  "Type of Account - Current",
+  "",
+  "UPI ID",
+  "jalsmrutifoundation@ybl"
+];
+bankDetails.forEach((line, i) => {
+  pdf.text(line, 40, quoteY + i * 12);
+});
+
+y = quoteY + bankDetails.length * 12 + 20;
+
+// --- Footer: Bottom layout ---
+const pageHeight = pdf.internal.pageSize.getHeight();
+const bottomY = pageHeight - 60;
+
+const hours = [
+  "Hours",
+  "Mon-Fri / 7:00 – 18:00",
+  "Saturday / 9:00 – 17:00"
+];
+const corporateOffices = [
+  "Corporate offices",
+  "Head Office: Amravati, Maharashtra 444602",
+  "Corporate Office: New Delhi, Delhi 110049"
+];
+const contactInfo = [
+  "Contact Info",
+  "Email: contact@jalsmruti.org"
+];
+
+pdf.setFontSize(9);
+pdf.setFont(undefined, "normal");
+
+hours.forEach((line, i) => {
+  pdf.text(line, 40, bottomY + i * 10);
+});
+corporateOffices.forEach((line, i) => {
+  pdf.text(line, pageWidth / 2, bottomY + i * 10, { align: "center" });
+});
+contactInfo.forEach((line, i) => {
+  pdf.text(line, pageWidth - 40, bottomY + i * 10, { align: "right" });
+});
+
+
     return pdf.output("blob");
   };
 
-  // Send generated PDF via backend API
   const sendPdfToBackend = async () => {
     try {
       const blob = await generatePdfBlob();
       const fileName = `${form.fullName || "Water Scorecard"} Report.pdf`;
       const formData = new FormData();
-      formData.append(
-        "pdf",
-        new File([blob], fileName, { type: "application/pdf" })
-      );
+      formData.append("pdf", new File([blob], fileName, { type: "application/pdf" }));
       formData.append("email", form.email);
-      formData.append("additionalInfo", "Your additional info text here");
+      formData.append("cc_email", "contact@jalsmruti.org");
 
       const res = await fetch("http://localhost:5000/api/send-pdf-email", {
         method: "POST",
@@ -485,7 +573,6 @@ const Success = ({ form, sections, onRestart }) => {
     }
   };
 
-  // Handle manual PDF download by user
   const handleDownloadPdf = async () => {
     const blob = await generatePdfBlob();
     const fileName = `${form.fullName || "Water Scorecard"} Report.pdf`;
@@ -493,8 +580,6 @@ const Success = ({ form, sections, onRestart }) => {
     link.href = URL.createObjectURL(blob);
     link.download = fileName;
     link.click();
-
-    // Cleanup URL object after download
     setTimeout(() => URL.revokeObjectURL(link.href), 100);
   };
 
@@ -507,85 +592,52 @@ const Success = ({ form, sections, onRestart }) => {
     }
   }, []);
 
-  // Reset refs to prevent duplicates on rerender
   containerRefs.current = [];
 
   return (
     <>
-      <Box
-        ref={addRef}
-        sx={{ backgroundColor: "white", m: 2, p: 2, borderRadius: 2 }}
-      >
+      <Box ref={addRef} sx={{ backgroundColor: "white", m: 2, p: 2, borderRadius: 2 }}>
         <Banner />
       </Box>
 
-      <Box
-        ref={addRef}
-        sx={{
-          backgroundColor: "white",
-          m: 2,
-          p: 2,
-          borderRadius: 2,
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Thank you, {form.fullName}, your response has been submitted.
-        </Typography>
-        <Typography variant="h6">Summary of your Results:</Typography>
-      </Box>
+<Box sx={{ mx: 2, mb: 2, textAlign: "center" }}>
+  <Typography variant="h4" fontWeight="bold">
+    Thank you, {form.fullName} for your response. <br></br>Here is your Summary Report.
+  </Typography>
+</Box>
 
-      <Box
-        ref={addRef}
-        sx={{
-          backgroundColor: overallColor,
-          color: "white",
-          m: 2,
-          p: 3,
-          borderRadius: 2,
-          textAlign: "center",
-          fontWeight: "bold",
-          fontSize: "1.5rem",
-        }}
-      >
-        <div>Overall Average Score: {avg.toFixed(2)}</div>
-        <div>Maturity Level: {maturity}</div>
-      </Box>
+<Box sx={{ mx: 2, mb: 4, display: "inline-block", borderRadius: 1, backgroundColor: overallColor, color: "#fff", px: 2, py: 1 }}>
+  <Typography variant="h5" gutterBottom sx={{ marginBottom: 0 }}>
+    Overall Average Score: {avg.toFixed(2)}
+  </Typography>
+  <Typography variant="h6" gutterBottom sx={{ marginTop: 0 }}>
+    Maturity Level: {maturity}
+  </Typography>
+</Box>
+
+
 
       {sections.map((section, idx) => {
         const { score, count } = calculateSectionScore(section, form);
         const sectionAvg = count > 0 ? score / count : 0;
         const sectionColor = getColorForScore(sectionAvg);
-
         return (
           <Box
             key={idx}
             ref={addRef}
-            sx={{ backgroundColor: "white", m: 2, p: 3, borderRadius: 2 }}
+            sx={{
+              m: 2,
+              p: 2,
+              backgroundColor: sectionColor,
+              borderRadius: 2,
+              color: "#fff",
+            }}
           >
-            <Box
-              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
-            >
-              <Typography variant="h6" fontWeight="bold">
-                {section.title}
-              </Typography>
-              <Typography
-                sx={{
-                  backgroundColor: sectionColor,
-                  color: "white",
-                  fontWeight: "bold",
-                  p: 1,
-                  borderRadius: 1,
-                  minWidth: 130,
-                  textAlign: "right",
-                }}
-              >
-                Average Score: {sectionAvg.toFixed(2)}
-              </Typography>
-            </Box>
-
-            <TableContainer>
-              <Table size="small">
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+              {section.title} - Average Score: {sectionAvg.toFixed(2)}
+            </Typography>
+            <TableContainer sx={{ backgroundColor: "#fff", borderRadius: 1 }}>
+              <Table size="small" aria-label={`${section.title} results`}>
                 <TableHead>
                   <TableRow>
                     <TableCell>Question</TableCell>
@@ -594,24 +646,16 @@ const Success = ({ form, sections, onRestart }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {section.questions.map((q, i) => {
+                  {section.questions.map((q, qidx) => {
                     const val = form[q.key];
-                    if (q.notApplicableValue && val === q.notApplicableValue) {
-                      return (
-                        <TableRow key={i}>
-                          <TableCell>{q.label}</TableCell>
-                          <TableCell>Not Applicable</TableCell>
-                          <TableCell>-</TableCell>
-                        </TableRow>
-                      );
-                    }
+                    const isNA = q.notApplicableValue && val === q.notApplicableValue;
                     const numVal = Number(val);
-                    const optionLabel = q.options?.[numVal] ?? "No response";
+                    const optionLabel = q.options?.[numVal] ?? (isNA ? "Not Applicable" : "No response");
                     return (
-                      <TableRow key={i}>
+                      <TableRow key={qidx}>
                         <TableCell>{q.label}</TableCell>
                         <TableCell>{optionLabel}</TableCell>
-                        <TableCell>{!isNaN(numVal) ? numVal : "-"}</TableCell>
+                        <TableCell>{isNA ? "-" : !isNaN(numVal) ? numVal : "-"}</TableCell>
                       </TableRow>
                     );
                   })}
@@ -622,21 +666,12 @@ const Success = ({ form, sections, onRestart }) => {
         );
       })}
 
-      <Box
-        className="no-print"
-        sx={{
-          maxWidth: 900,
-          margin: "20px auto",
-          display: "flex",
-          justifyContent: "space-between",
-          gap: 2,
-        }}
-      >
-        <Button variant="outlined" onClick={onRestart} color="error">
-          Start Again
+      <Box sx={{ textAlign: "center", my: 4 }}>
+        <Button variant="contained" color="primary" onClick={handleDownloadPdf}>
+          Download Report as PDF
         </Button>
-        <Button variant="contained" onClick={handleDownloadPdf}>
-          Download Report
+        <Button variant="outlined" color="secondary" onClick={onRestart} sx={{ ml: 2 }}>
+          Submit Another Form
         </Button>
       </Box>
     </>

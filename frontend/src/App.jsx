@@ -20,9 +20,10 @@ import Page5 from "./pages/Page5";
 import Page6 from "./pages/Page6";
 import Page7 from "./pages/Page7";
 import Page8 from "./pages/Page8";
-import Success from "./pages/Success";
 import Preview from "./pages/Preview";
 import Banner from "./components/Banner";
+import Success from "./pages/Success";
+
 
 import sections from "./pages/sections";
 
@@ -127,6 +128,7 @@ function App() {
         return (
           <Success form={form} onRestart={handleRestart} sections={sections} />
         );
+
       default:
         return null;
     }
@@ -167,7 +169,14 @@ function App() {
       </Box>
 
       {activeStep > 0 && activeStep < steps.length - 1 && (
-        <Box sx={{ mt: 2, mb: 7, display: "flex", justifyContent: "space-between" }}>
+        <Box
+          sx={{
+            mt: 2,
+            mb: 7,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
           <Button color="error" variant="outlined" onClick={handleClear}>
             Clear Form
           </Button>
