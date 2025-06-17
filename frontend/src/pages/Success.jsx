@@ -707,7 +707,7 @@ const Success = ({ form, sections, onRestart }) => {
       formData.append("email", form.email);
       formData.append("cc_email", "abcd.gmail.com");
 
-      const res = await fetch("http://localhost:5000/api/send-pdf-email", {
+      const res = await fetch("https://backend-jprs.onrender.com", {
         method: "POST",
         body: formData,
       });
