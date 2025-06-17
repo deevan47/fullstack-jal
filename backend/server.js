@@ -341,7 +341,7 @@ app.post("/api/send-pdf-email", upload.single("pdf"), async (req, res) => {
       to: email,
       cc: cc_email || "deevankumar0706@gmail.com",
       subject: "Your Water Management Assessment Report",
-      text: `Hi ${fullName || "User"},
+      text: `Hi ,
 
 Thank you for completing our Water Management Assessment. Please find your detailed report attached.
 
