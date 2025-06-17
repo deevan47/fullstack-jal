@@ -1,12 +1,19 @@
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import commonjs from '@rollup/plugin-commonjs';
 
 export default defineConfig({
-  plugins: [
-    react(),
-    commonjs({
-      include: /node_modules\/(hoist-non-react-statics|@?emotion)\/.*/, 
-    }),
-  ],
+  plugins: [react()],
+  optimizeDeps: {
+    include: ['hoist-non-react-statics'],
+    esbuildOptions: {
+
+      mainFields: ['module', 'main'],
+    },
+  },
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  },
 });
