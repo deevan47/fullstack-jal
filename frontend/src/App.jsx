@@ -23,8 +23,6 @@ import Page8 from "./pages/Page8";
 import Preview from "./pages/Preview";
 import Banner from "./components/Banner";
 import Success from "./pages/Success";
-
-
 import sections from "./pages/sections";
 
 const steps = [
@@ -40,13 +38,30 @@ const steps = [
   "Success",
 ];
 
+// Default form state
 function getDefaultForm() {
   return {
     fullName: "",
     email: "",
     whatsapp: "",
-    date: "",
-    submittedAt: new Date().toISOString(),
+    date: "", 
+    buildingName: "", 
+    mapLink: "", 
+    unitsCount: null,
+
+    // Initializing question fields as null for backend compatibility
+    q1_1: null, q1_2: null, q1_3: null, q1_4: null,
+    q2_1: null, q2_2: null, q2_3: null, q2_4: null, q2_5: null, q2_6: null,
+    q3_1: null, q3_2: null, q3_3: null,
+    q4_1: null, q4_2: null, q4_3: null,
+    q5_1: null, q5_2: null, q5_3: null, q5_4: null,
+
+    // Score fields
+    score_water_management: null,
+    score_water_efficiency: null,
+    score_groundwater: null,
+    score_circularity: null,
+    score_green_cover: null,
   };
 }
 
@@ -71,20 +86,96 @@ function App() {
   };
 
   const handleClear = () => setClearDialog(true);
-
   const confirmClear = () => {
     setForm(getDefaultForm());
     setActiveStep(0);
     setClearDialog(false);
     setIsEditing(false);
   };
-
   const cancelClear = () => setClearDialog(false);
-
   const handleRestart = () => {
     setForm(getDefaultForm());
     setActiveStep(0);
     setIsEditing(false);
+  };
+
+  const handleSubmitDetailedForm = async () => {
+    try {
+      const formToSend = { ...form };
+
+      const replacer = (key, value) => {
+        if (
+          value instanceof Window ||
+          value instanceof HTMLElement ||
+          value instanceof Event
+        ) {
+          console.warn(`Filtering non-serializable property: ${key}`);
+          return undefined;
+        }
+        if (
+          value &&
+          typeof value === "object" &&
+          value.current &&
+          (value.current instanceof HTMLElement || value.current instanceof Window)
+        ) {
+          console.warn(`Filtering ref.current HTML element: ${key}`);
+          return undefined;
+        }
+        if (typeof value === "function") {
+          console.warn(`Filtering function property: ${key}`);
+          return undefined;
+        }
+        return value;
+      };
+
+      Object.keys(formToSend).forEach((key) => {
+        if (formToSend[key] === undefined) return;
+
+        const value = formToSend[key];
+
+        if (
+          (key.startsWith("q") && key.includes("_")) ||
+          key.startsWith("score_") ||
+          key === "unitsCount"
+        ) {
+          if (value === null || value === undefined || value === "") {
+            formToSend[key] = null;
+          } else {
+            const numVal = Number(value);
+            formToSend[key] = !isNaN(numVal) ? numVal : null;
+          }
+        }
+      });
+
+      console.log("Sending form data:", formToSend);
+
+      const jsonData = JSON.stringify(formToSend, replacer);
+
+      const response = await fetch("http://localhost:5000/api/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Backend error response:", errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log("Detailed form submitted successfully to /api/submit:", result);
+
+      setActiveStep(steps.length - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert(
+        `Failed to submit the form. Error: ${error.message}. Please check your network or server logs and try again.`
+      );
+    }
   };
 
   const getStepContent = (step) => {
@@ -92,7 +183,8 @@ function App() {
       onNext: handleNext,
       onBack: handleBack,
       form,
-      formRef,
+      setForm,
+      sections,
     };
 
     switch (step) {
@@ -120,15 +212,18 @@ function App() {
               setActiveStep(1);
               setIsEditing(true);
             }}
-            onSubmit={() => setActiveStep(steps.length - 1)}
+            onSubmit={handleSubmitDetailedForm}
             sections={sections}
           />
         );
       case 9:
         return (
-          <Success form={form} onRestart={handleRestart} sections={sections} />
+          <Success
+            form={form}
+            onRestart={handleRestart}
+            sections={sections}
+          />
         );
-
       default:
         return null;
     }
@@ -136,16 +231,12 @@ function App() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      {/* Show Banner on all steps except step 0 and 9 (Success page) */}
       {activeStep !== 0 && activeStep !== steps.length - 1 && <Banner />}
 
-      {/* Stepper only if not on Success page */}
       {activeStep !== steps.length - 1 && (
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label, index) => {
-            const isClickable =
-              isEditing && index !== 0 && index !== steps.length - 1;
-
+            const isClickable = isEditing && index !== 0 && index !== steps.length - 1;
             return (
               <Step key={label}>
                 <StepLabel
@@ -169,14 +260,7 @@ function App() {
       </Box>
 
       {activeStep > 0 && activeStep < steps.length - 1 && (
-        <Box
-          sx={{
-            mt: 2,
-            mb: 7,
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
+        <Box sx={{ mt: 2, mb: 7, display: "flex", justifyContent: "space-between" }}>
           <Button color="error" variant="outlined" onClick={handleClear}>
             Clear Form
           </Button>
@@ -186,8 +270,8 @@ function App() {
       <Dialog open={clearDialog} onClose={cancelClear}>
         <DialogTitle>Clear Form</DialogTitle>
         <DialogContent>
-          This action will clear all form fields and cannot be undone. Would you
-          like to proceed?
+          This action will clear all form fields and cannot be undone. Would you like to
+          proceed?
         </DialogContent>
         <DialogActions>
           <Button onClick={cancelClear}>Cancel</Button>

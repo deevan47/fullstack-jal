@@ -125,7 +125,7 @@ const sections = [
       },
       {
         key: 'q3_3',
-        label: '3.3 Status of Groundwater Recharge expressed as percentage of Groundwater extraction',
+        label: '3.3 Status of Groundwater Recharge expressed as % of Groundwater extraction',
         options: [
           '(<20%)',
           '(20-40%)',

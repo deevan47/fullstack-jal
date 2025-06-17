@@ -2,7 +2,7 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem; /* Fixed typo: pawdding -> padding */
+  padding: 2rem; 
   text-align: center;
 }
 
@@ -68,7 +68,7 @@ body {
   background: linear-gradient(90deg, #1565c0 0%, #42a5f5 100%);
 }
 
-/* -------- PDF / Print Styles -------- */
+/* PDF / Print Styles  */
 @media print {
   .avoid-break {
     break-inside: avoid !important;

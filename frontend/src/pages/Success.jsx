@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   Typography,
   Box,
@@ -14,254 +14,240 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import bannerImage from "../assets/banner.png";
 
-
-
 const sections = [
   {
-    title: "Water Management",
+    title: "1. Water Management",
     questions: [
       {
         key: "q1_1",
         label: "1.1 Status of Water Policy",
-        options: {
-          0: "None",
-          1: "Water policy making in progress",
-          2: "Water Policy drafted",
-          3: "Water Policy drafted & communicated to staff & tenants",
-        },
+        options: [
+          "None",
+          "Water policy making in progress",
+          "Water Policy drafted",
+          "Water Policy drafted & communicated to staff & tenants",
+        ],
       },
       {
         key: "q1_2",
         label: "1.2 Status of Water Pledge",
-        options: {
-          0: "None",
-          1: "Management have taken a water pledge",
-          2: "Management + Facility Staff have taken a water pledge",
-          3: "Management + Facility Staff + Tenants have taken a water pledge",
-        },
+        options: [
+          "None",
+          "Management have taken a water pledge",
+          "Management + Facility Staff have taken a water pledge",
+          "Management + Facility Staff + Tenants have taken a water pledge",
+        ],
       },
       {
         key: "q1_3",
         label: "1.3 Status of Water Charter",
-        options: {
-          0: "None",
-          1: "Water Charter drafting in progress",
-          2: "Water Charter finalized",
-          3: "Water Charter finalized and displayed in public",
-        },
+        options: [
+          "None",
+          "Water Charter drafting in progress",
+          "Water Charter finalized",
+          "Water Charter finalized and displayed in public",
+        ],
       },
       {
         key: "q1_4",
         label: "1.4 Status of Water Saving Goals & Targets",
-        options: {
-          0: "None",
-          1: "Work in progress",
-          2: "Water saving goals & targets have been set",
-          3: "Water saving goals & targets communicated to staff & tenants",
-        },
+        options: [
+          "None",
+          "Work in progress",
+          "Water saving goals & targets have been set",
+          "Water saving goals & targets communicated to staff & tenants",
+        ],
       },
     ],
   },
   {
-    title: "Water Efficiency",
+    title: "2. Water Efficiency",
     questions: [
       {
         key: "q2_1",
         label: "2.1 Status of Water Metering",
-        options: {
-          0: "Bulk water meter",
-          1: "Bulk meter + submeter",
-          2: "Bulk meter + submeter + monthly or weekly monitoring",
-          3: "Smart water sub meters",
-        },
+        options: [
+          "Bulk water meter",
+          "Bulk meter + submeter",
+          "Bulk meter + submeter + monthly or weekly monitoring",
+          "Smart water sub meters",
+        ],
       },
       {
         key: "q2_2",
-        label: "2.2 Status of Water Fixtures (Average Flow Rate in lpm)",
-        options: {
-          0: "(>15 lpm)",
-          1: "(10-15 lpm)",
-          2: "(5-10 lpm)",
-          3: "(<5 lpm)",
-        },
+        label:
+          "2.2 Status of Water Fixtures (Average) Flow Rate in liters per minute (lpm)",
+        options: ["(>15 lpm)", "(10-15 lpm)", "(5-10 lpm)", "(<5 lpm)"],
       },
       {
         key: "q2_3",
         label: "2.3 Status of Toilet Flushing",
-        options: {
-          0: "Single flush (>12 litres)",
-          1: "Single flush (10-12 litres)",
-          2: "Dual flush (12 / 6 litres)",
-          3: "Dual flush (8 / 4 litres)",
-        },
+        options: [
+          "Single flush (>12 litres)",
+          "Single flush (10-12 litres)",
+          "Dual flush (12 /6 litres)",
+          "Dual flush (8 /4 litres)",
+        ],
       },
       {
         key: "q2_4",
         label: "2.4 Status of Water Conservation Signage & Communication",
-        options: {
-          0: "None",
-          1: "Signage in washrooms",
-          2: "Signage in washrooms and other areas",
-          3: "Signage plus monthly staff and tenant awareness sessions",
-        },
+        options: [
+          "None",
+          "Signage in washrooms",
+          "Signage in washrooms and other areas",
+          "Signage plus monthly staff and tenant awareness sessions",
+        ],
       },
       {
         key: "q2_5",
         label: "2.5 Status of Water Use in Cooling Tower",
-        options: {
-          "N/A": "Not Applicable",
-          0: "No submeter and/or single pass use",
-          1: "Submeter and single pass use",
-          2: "Submeter and water recirculation factor <3",
-          3: "Submeter & water recirculation factor >3",
-        },
-        notApplicableValue: "N/A",
+        options: [
+          "No submeter and/or single pass use",
+          "Submeter and single pass use",
+          "Submeter and water recirculation factor <3",
+          "Submeter & water recirculation factor >3",
+          "Not Applicable",
+        ],
+        notApplicableValue: -1,
       },
       {
         key: "q2_6",
         label: "2.6 Status of Water Use Intensity",
-        options: {
-          0: "(>60% more than best practice benchmark)",
-          1: "(51-60% more than best practice benchmark)",
-          2: "(11-40% more than best practice benchmark)",
-          3: "(Within 10% of best practice benchmark)",
-        },
+        options: [
+          "(>60% more than best practice benchmark)",
+          "(51-60% more than best practice benchmark)",
+          "(11-40% more than best practice benchmark)",
+          "(Within 10% of best practice benchmark)",
+        ],
       },
     ],
   },
   {
-    title: "Groundwater sustainability",
+    title: "3. Groundwater Sustainability",
     questions: [
       {
         key: "q3_1",
-        label: "3.1 Status of Groundwater dependency (percentage of total annual water consumed)",
-        options: {
-          0: "(>50%)",
-          1: "(20-50%)",
-          2: "(5-20%)",
-          3: "(<5%)",
-        },
+        label:
+          "3.1 Status of Groundwater dependency expressed as percentage of total annual water consumed",
+        options: ["(>50%)", "(20-50%)", "(5-20%)", "(<5%)"],
       },
       {
         key: "q3_2",
         label: "3.2 Status of Groundwater Extraction",
-        options: {
-          0: "None",
-          1: "Manual monitoring of pumped hours",
-          2: "Manual metering",
-          3: "Smart metering",
-        },
+        options: [
+          "None",
+          "Manual monitoring of pumped hours",
+          "Manual metering",
+          "Smart metering",
+        ],
       },
       {
         key: "q3_3",
-        label: "3.3 Status of Groundwater Recharge (percentage of Groundwater extraction)",
-        options: {
-          0: "(<20%)",
-          1: "(20-40%)",
-          2: "(40-50%)",
-          3: "(>50%)",
-        },
+        label:
+          "3.3 Status of Groundwater Recharge expressed as % of Groundwater extraction",
+        options: ["(<20%)", "(20-40%)", "(40-50%)", "(>50%)", "Not Applicable"],
+        notApplicableValue: -1,
       },
     ],
   },
   {
-    title: "Water Circularity Status",
+    title: "4. Water Circularity Status",
     questions: [
       {
         key: "q4_1",
         label: "4.1 Status of Rainwater Harvesting",
-        options: {
-          0: "None",
-          1: "Roofwater harvesting from <50% of roof",
-          2: "Roofwater harvesting from >50% of roof",
-          3: "Roofwater harvesting + Non roof water harvesting",
-        },
+        options: [
+          "None",
+          "Roofwater harvesting from <50% of roof",
+          "Roofwater harvesting from >50% of roof",
+          "Roofwater harvesting + Non roof water harvesting",
+        ],
       },
       {
         key: "q4_2",
         label: "4.2 Status of Greywater/Sewage Water Recycling or Reuse",
-        options: {
-          0: "None",
-          1: "Footprint area available for siting a facility",
-          2: "Work in progress - designed and waiting to be constructed",
-          3: "Greywater/Sewage recycling is operational",
-        },
+        options: [
+          "None",
+          "Footprint area available for siting a facility",
+          "Work in progress - designed and waiting to be constructed",
+          "Greywater/Sewage recycling is operational",
+        ],
       },
       {
         key: "q4_3",
         label: "4.3 Status of Collective Reverse Osmosis Treated Water",
-        options: {
-          0: "No Reuse - Reject Water is Discharged",
-          1: "Technically feasible to organize for non potable reuse",
-          2: "Plans in place and to be executed",
-          3: "Reject Water is being reused for non potable use",
-        },
+        options: [
+          "No Reuse - Reject Water is Discharged",
+          "Technically feasible to organize for non potable reuse",
+          "Plans in place and to be executed",
+          "Reject Water is being reused for non potable use",
+          "Not Applicable",
+        ],
+        notApplicableValue: -1,
       },
     ],
   },
   {
-    title: "Status of Green Vegetation Cover",
+    title: "5. Status of Green Vegetation Cover",
     questions: [
       {
         key: "q5_1",
         label: "5.1 Status of Green Cover Policy",
-        options: {
-          0: "None",
-          1: "Green Cover Policy drafting in progress",
-          2: "Green Cover Policy finalized",
-          3: "Green Cover Policy finalized and shared with stakeholders",
-        },
+        options: [
+          "None",
+          "Green Cover Policy drafting in progress",
+          "Green Cover Policy finalized",
+          "Green Cover Policy finalized and shared with stakeholders",
+        ],
       },
       {
         key: "q5_2",
         label: "5.2 Status of Green Coverage Area",
-        options: {
-          0: "(<10%)",
-          1: "(10-25%)",
-          2: "(25-50%)",
-          3: "(>50%)",
-        },
+        options: ["(<10%)", "(10-25%)", "(25-50%)", "(>50%)"],
       },
       {
         key: "q5_3",
         label: "5.3 Status of Green Landscapes",
-        options: {
-          0: "High water using non-native species + no smart irrigation",
-          1: "High water using non-native species + smart irrigation",
-          2: "Native species + no smart irrigation",
-          3: "Native species + smart irrigation",
-        },
+        options: [
+          "High water using non-native species + no smart irrigation",
+          "High water using non-native species + smart irrigation",
+          "Native species + no smart irrigation",
+          "Native species + smart irrigation",
+        ],
       },
       {
         key: "q5_4",
         label: "5.4 Status of Green Roofs & Green Walls",
-        options: {
-          0: "None",
-          1: "Plans for Green Roofs & Green Walls in place",
-          2: "Green Roofs operational",
-          3: "Green Roofs + Green Walls operational",
-        },
+        options: [
+          "None",
+          "Plans for Green Roofs & Green Walls in place",
+          "Green Roofs operational",
+          "Green Roofs + Green Walls operational",
+          "Not Applicable",
+        ],
+        notApplicableValue: -1,
       },
     ],
   },
 ];
+
+// Helper functions
 function getColorForScore(score) {
   if (score <= 1) {
-    // interpolate between red (#e74c3c) and orange (#f39c12)
     return interpolateColor("#e74c3c", "#f39c12", score);
   } else if (score <= 2) {
-    // interpolate between orange (#f39c12) and yellow (#f1c40f)
     return interpolateColor("#f39c12", "#f1c40f", score - 1);
   } else if (score <= 3) {
-    // interpolate between yellow (#f1c40f) and green (#27ae60)
     return interpolateColor("#f1c40f", "#27ae60", score - 2);
   } else {
-    return "#27ae60"; // clamp max to green
+    return "#27ae60";
   }
 }
 
 function calculateSectionScore(section, form) {
-  let total = 0, count = 0;
+  let total = 0,
+    count = 0;
   section.questions.forEach((q) => {
     const val = form[q.key];
     if (!(q.notApplicableValue && val === q.notApplicableValue)) {
@@ -272,12 +258,13 @@ function calculateSectionScore(section, form) {
       }
     }
   });
-  return { score: total, count };
+  return count ? total / count : 0;
 }
 
-function calculateOverallAverage(form, sections) {
-  let total = 0, count = 0;
-  sections.forEach((section) =>
+function calculateTotalScore(form) {
+  let total = 0,
+    count = 0;
+  sections.forEach((section) => {
     section.questions.forEach((q) => {
       const val = form[q.key];
       if (!(q.notApplicableValue && val === q.notApplicableValue)) {
@@ -287,15 +274,30 @@ function calculateOverallAverage(form, sections) {
           count++;
         }
       }
-    })
-  );
-  return { avg: count > 0 ? total / count : 0 };
+    });
+  });
+  return count ? total / count : 0;
 }
 
-function getMaturityLevel(score) {
-  if (score < 1) return "Front Runner";
-  else if (score < 2) return "Performer";
-  else return "Achiever";
+function interpolateColor(color1, color2, factor) {
+  var hex = function (x) {
+    x = x.toString(16);
+    return x.length === 1 ? "0" + x : x;
+  };
+
+  var r1 = parseInt(color1.substring(1, 3), 16);
+  var g1 = parseInt(color1.substring(3, 5), 16);
+  var b1 = parseInt(color1.substring(5, 7), 16);
+
+  var r2 = parseInt(color2.substring(1, 3), 16);
+  var g2 = parseInt(color2.substring(3, 5), 16);
+  var b2 = parseInt(color2.substring(5, 7), 16);
+
+  var r = Math.round(r1 + factor * (r2 - r1));
+  var g = Math.round(g1 + factor * (g2 - g1));
+  var b = Math.round(b1 + factor * (b2 - b1));
+
+  return "#" + hex(r) + hex(g) + hex(b);
 }
 
 function hexToRgb(hex) {
@@ -307,49 +309,18 @@ function hexToRgb(hex) {
   };
 }
 
-function rgbToHex({ r, g, b }) {
-  return (
-    "#" +
-    [r, g, b]
-      .map((x) => {
-        const hex = x.toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
-      })
-      .join("")
-  );
+function getMaturityLevel(score) {
+  if (score < 1) return "Front Runner";
+  else if (score < 2) return "Performer";
+  else return "Achiever";
 }
-
-function interpolateColor(color1, color2, factor) {
-  const c1 = hexToRgb(color1);
-  const c2 = hexToRgb(color2);
-  const result = {
-    r: Math.round(c1.r + (c2.r - c1.r) * factor),
-    g: Math.round(c1.g + (c2.g - c1.g) * factor),
-    b: Math.round(c1.b + (c2.b - c1.b) * factor),
-  };
-  return rgbToHex(result);
-}
-
-const Banner = () => (
-  <Box
-    component="img"
-    src={bannerImage}
-    alt="Banner"
-    sx={{ width: "100%", height: "auto", borderRadius: 2 }}
-  />
-);
 
 const Success = ({ form, sections, onRestart }) => {
-  const containerRefs = useRef([]);
-  const { avg } = calculateOverallAverage(form, sections);
-  const maturity = getMaturityLevel(avg);
-  const overallColor = getColorForScore(avg);
-
-  const addRef = (el) => {
-    if (el && !containerRefs.current.includes(el)) {
-      containerRefs.current.push(el);
-    }
-  };
+  const pdfRef = useRef(null);
+  const hasSentRef = useRef(false);
+  const totalScore = calculateTotalScore(form);
+  const overallColor = getColorForScore(totalScore);
+  const maturity = getMaturityLevel(totalScore);
 
   const getImageBase64 = (url) =>
     new Promise((resolve) => {
@@ -367,73 +338,185 @@ const Success = ({ form, sections, onRestart }) => {
       img.src = url;
     });
 
+  const addFooter = (doc) => {
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 40;
+    const footerY = pageHeight - 40;
+    const leftX = margin;
+    const centerX = doc.internal.pageSize.getWidth() / 2;
+    const rightX = doc.internal.pageSize.getWidth() - margin;
+
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+
+    const leftText = "Hours\nMon-Fri / 7:00 – 18:00\nSaturday / 9:00 – 17:00";
+    const centerText =
+      "Corporate offices\nHead Office: Amravati, Maharashtra 444602\nCorporate Office: New Delhi, Delhi 110049";
+    const rightText = "Contact Info\nEmail: contact@jalsmruti.org";
+
+    const lineSpacing = 10;
+
+    leftText.split("\n").forEach((line, i) => {
+      doc.text(
+        line,
+        leftX,
+        footerY - (leftText.split("\n").length - 1 - i) * lineSpacing
+      );
+    });
+
+    centerText.split("\n").forEach((line, i) => {
+      doc.text(
+        line,
+        centerX,
+        footerY - (centerText.split("\n").length - 1 - i) * lineSpacing,
+        {
+          align: "center",
+        }
+      );
+    });
+
+    rightText.split("\n").forEach((line, i) => {
+      doc.text(
+        line,
+        rightX,
+        footerY - (rightText.split("\n").length - 1 - i) * lineSpacing,
+        {
+          align: "right",
+        }
+      );
+    });
+  };
+
   const generatePdfBlob = async () => {
-    const pdf = new jsPDF("p", "pt");
-    const pageWidth = pdf.internal.pageSize.getWidth();
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4",
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const centerX = pageWidth / 2;
 
     const bannerBase64 = await getImageBase64(bannerImage);
     if (bannerBase64) {
-      pdf.addImage(bannerBase64, "PNG", 0, 0, pageWidth, 100);
+      doc.addImage(bannerBase64, "PNG", 0, 0, pageWidth, 100);
     }
+    let startY = bannerBase64 ? 120 : 40;
 
-    let y = bannerBase64 ? 120 : 40;
+    const slogan =
+      "The driving force behind Jalsmruti is empowering communities to restore India's cherished legacy — a land that was once celebrated as 'Sujalaam Sufalaam', abundant in water and lush vegetation.";
 
-    pdf.setFontSize(14);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text(`Name: ${form.fullName || "N/A"}`, pageWidth / 2, y, { align: "center" });
-    y += 20;
-    pdf.text(`Email: ${form.email || "N/A"}`, pageWidth / 2, y, { align: "center" });
-    y += 20;
-    pdf.setFillColor(...Object.values(hexToRgb(overallColor)));
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(14);
-    pdf.rect(40, y, pageWidth - 80, 50, "F");
-    pdf.text(`Overall Average Score: ${avg.toFixed(2)}`, pageWidth / 2, y + 18, { align: "center" });
-    pdf.text(`Maturity Level: ${maturity}`, pageWidth / 2, y + 38, { align: "center" });
-    y += 70;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(0, 0, 0);
 
-    for (const section of sections) {
-      const { score, count } = calculateSectionScore(section, form);
-      const sectionAvg = count > 0 ? score / count : 0;
-      const sectionColor = getColorForScore(sectionAvg);
-      const rgb = hexToRgb(sectionColor);
+    const marginX = 40;
+    const maxWidth = pageWidth - marginX * 2;
+    const words = slogan.split(" ");
+    let line = "";
+    const lines = [];
 
-      const estimatedHeight = 35 + section.questions.length * 25;
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      if (y + estimatedHeight > pageHeight - 40) {
-        pdf.addPage();
-        y = 40;
+    words.forEach((word) => {
+      const testLine = line + word + " ";
+      const testWidth = doc.getTextWidth(testLine);
+      if (testWidth > maxWidth) {
+        lines.push(line.trim());
+        line = word + " ";
+      } else {
+        line = testLine;
       }
+    });
+    if (line) lines.push(line.trim());
 
-      pdf.setFillColor(rgb.r, rgb.g, rgb.b);
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(12);
-      pdf.setFont(undefined, "bold");
-      pdf.rect(40, y, pageWidth - 80, 25, "F");
-      pdf.text(`${section.title}`, 50, y + 17);
-      pdf.text(`Average Score: ${sectionAvg.toFixed(2)}`, pageWidth - 50, y + 17, { align: "right" });
-      y += 25;
+    lines.forEach((lineText, i) => {
+      const y = startY + i * 18;
+      const wordsInLine = lineText.split(" ");
 
-      const body = section.questions.map((q) => {
-        const val = form[q.key];
-        if (q.notApplicableValue && val === q.notApplicableValue) {
-          return [q.label, "Not Applicable", "-"];
+      const lineWidth = wordsInLine.reduce((sum, word) => {
+        return sum + doc.getTextWidth(word + " ");
+      }, 0);
+
+      let cursorX = (pageWidth - lineWidth) / 2;
+
+      wordsInLine.forEach((word) => {
+        if (word === "Jalsmruti") {
+          doc.setTextColor(0, 102, 204); // Blue
+          doc.setFont(undefined, "bold");
+        } else if (
+          word.includes("Sujalaam") ||
+          word.includes("Sufalaam") ||
+          word.includes("'Sujalaam") ||
+          word.includes("Sufalaam',")
+        ) {
+          doc.setTextColor(0, 153, 76); // Green
+          doc.setFont("helvetica", "italic");
+        } else {
+          doc.setTextColor(0, 0, 0);
+          doc.setFont("helvetica", "normal");
         }
-        const numVal = Number(val);
-        const optionLabel = q.options?.[numVal] ?? "No response";
-        return [q.label, optionLabel, !isNaN(numVal) ? numVal : "-"];
+
+        const wordWidth = doc.getTextWidth(word + " ");
+        doc.text(word + " ", cursorX, y);
+        cursorX += wordWidth;
+      });
+    });
+
+    startY += lines.length * 18 + 20;
+
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Name: ${form.fullName || "N/A"}`, centerX, startY, {
+      align: "center",
+    });
+    startY += 20;
+    doc.text(`Email: ${form.email || "N/A"}`, centerX, startY, {
+      align: "center",
+    });
+    startY += 30;
+
+    for (let i = 0; i < 3; i++) {
+      const section = sections[i];
+      const sectionScore = calculateSectionScore(section, form);
+      const sectionColor = getColorForScore(sectionScore);
+      const { r, g, b } = hexToRgb(sectionColor);
+
+      doc.setFillColor(r, g, b);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(12);
+      doc.rect(40, startY, pageWidth - 80, 25, "F");
+      doc.text(section.title, 50, startY + 17);
+      doc.text(
+        `Average Score: ${sectionScore.toFixed(2)}`,
+        pageWidth - 50,
+        startY + 17,
+        { align: "right" }
+      );
+      startY += 25;
+
+      const tableRows = section.questions.map((q) => {
+        const val = form[q.key];
+        const answerText =
+          q.notApplicableValue && val === q.notApplicableValue
+            ? "Not Applicable"
+            : q.options?.[val] || val || "N/A";
+        return [
+          q.label,
+          answerText,
+          q.notApplicableValue && val === q.notApplicableValue ? "-" : val,
+        ];
       });
 
-      autoTable(pdf, {
-        startY: y,
-        head: [["Question", "Response", "Score"]],
-        body,
+      autoTable(doc, {
+        startY,
+        head: [["Question", "Answer", "Score"]],
+        body: tableRows,
+        margin: { left: 40, right: 40 },
         theme: "grid",
         styles: {
           fontSize: 9,
-          cellPadding: 5,
           textColor: 0,
+          cellPadding: 5,
           lineWidth: 0.1,
           lineColor: [50, 50, 50],
         },
@@ -442,131 +525,197 @@ const Success = ({ form, sections, onRestart }) => {
           textColor: 0,
           fontStyle: "bold",
         },
-        margin: { left: 40, right: 40 },
-        pageBreak: "auto",
-        rowPageBreak: "avoid",
       });
 
-      y = pdf.lastAutoTable.finalY + 30;
+      startY = doc.lastAutoTable.finalY + 28;
     }
 
-// Add quote
-pdf.setFontSize(11);
-pdf.setTextColor(0, 0, 0);
-pdf.setFont(undefined, "normal");
+    doc.addPage();
+    startY = 40;
 
-const quote = [
-  "The driving force behind ",
-  "Jalsmruti",
-  " is empowering community to restore India's cherished legacy—a land that was once celebrated as ",
-  "'Sujalaam Sufalaam'",
-  ", abundant in water and lush vegetation."
-];
+    for (let i = 3; i < 5; i++) {
+      const section = sections[i];
+      const sectionScore = calculateSectionScore(section, form);
+      const sectionColor = getColorForScore(sectionScore);
+      const { r, g, b } = hexToRgb(sectionColor);
 
-const quoteLine = quote.map((word, i) => {
-  if (word === "Jalsmruti") return `%Jalsmruti%`;
-  if (word === "'Sujalaam Sufalaam'") return `%Sujalaam%`;
-  return word;
-}).join("");
+      doc.setFillColor(r, g, b);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(12);
+      doc.rect(40, startY, pageWidth - 80, 25, "F");
+      doc.text(section.title, 50, startY + 17);
+      doc.text(
+        `Average Score: ${sectionScore.toFixed(2)}`,
+        pageWidth - 50,
+        startY + 17,
+        { align: "right" }
+      );
+      startY += 25;
 
-let parts = quoteLine.split(/(%.*?%)/);
-let cursorX = pageWidth / 2 - 200;
-let quoteY = y;
+      const tableRows = section.questions.map((q) => {
+        const val = form[q.key];
+        const answerText =
+          q.notApplicableValue && val === q.notApplicableValue
+            ? "Not Applicable"
+            : q.options?.[val] || val || "N/A";
+        return [
+          q.label,
+          answerText,
+          q.notApplicableValue && val === q.notApplicableValue ? "-" : val,
+        ];
+      });
 
-pdf.setFontSize(11);
-pdf.setFont(undefined, "normal");
+      autoTable(doc, {
+        startY,
+        head: [["Question", "Answer", "Score"]],
+        body: tableRows,
+        margin: { left: 40, right: 40 },
+        theme: "grid",
+        styles: {
+          fontSize: 9,
+          textColor: 0,
+          cellPadding: 5,
+          lineWidth: 0.1,
+          lineColor: [50, 50, 50],
+        },
+        headStyles: {
+          fillColor: [255, 255, 255],
+          textColor: 0,
+          fontStyle: "bold",
+        },
+      });
 
-parts.forEach((part) => {
-  if (part === "%Jalsmruti%") {
-    pdf.setTextColor(0, 102, 204); // Blue
-    pdf.text("Jalsmruti", pageWidth / 2, quoteY, { align: "center" });
-  } else if (part === "%Sujalaam%") {
-    pdf.setTextColor(0, 128, 0); // Green
-    pdf.text("'Sujalaam Sufalaam'", pageWidth / 2, quoteY + 15, { align: "center" });
-  }
-});
+      startY = doc.lastAutoTable.finalY + 50;
+    }
 
-quoteY += 35;
-pdf.setFontSize(12);
-pdf.setTextColor(0, 0, 0);
-pdf.setFont(undefined, "bold");
-pdf.text("Your donation to Jal Smruti Foundation is tax deductible", 40, quoteY);
+    doc.setFontSize(16);
+    doc.setFont(undefined, "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text("OUR SERVICES", 40, startY);
+    startY += 25;
 
-quoteY += 20;
-pdf.setFontSize(10);
-pdf.setFont(undefined, "normal");
+    doc.setFontSize(13);
+    doc.setFont(undefined, "normal");
+    const services = [
+      "• Water Body Rejuvenation & Restoration",
+      "• Capacity Building & Behaviour Change",
+      "• Water Positive Program for Urban Built Forms",
+    ];
 
-const bankDetails = [
-  "Bank Details",
-  "Name of Account - Jjala Ssmruti Foundation",
-  "Name of Bank - State Bank of India",
-  "IFSC Code - SBIN0003866",
-  "Account Number - 40131834676",
-  "Type of Account - Current",
-  "",
-  "UPI ID",
-  "jalsmrutifoundation@ybl"
-];
-bankDetails.forEach((line, i) => {
-  pdf.text(line, 40, quoteY + i * 12);
-});
+    services.forEach((service) => {
+      doc.text(service, 50, startY);
+      startY += 25;
+    });
 
-y = quoteY + bankDetails.length * 12 + 20;
+    startY += 10;
 
-// --- Footer: Bottom layout ---
-const pageHeight = pdf.internal.pageSize.getHeight();
-const bottomY = pageHeight - 60;
+    if (startY + 200 > pageHeight - 60) {
+      doc.addPage();
+      startY = 40;
+    }
 
-const hours = [
-  "Hours",
-  "Mon-Fri / 7:00 – 18:00",
-  "Saturday / 9:00 – 17:00"
-];
-const corporateOffices = [
-  "Corporate offices",
-  "Head Office: Amravati, Maharashtra 444602",
-  "Corporate Office: New Delhi, Delhi 110049"
-];
-const contactInfo = [
-  "Contact Info",
-  "Email: contact@jalsmruti.org"
-];
+    doc.setFontSize(18);
+    doc.setFont(undefined, "bold");
+    doc.setTextColor(0, 0, 0);
 
-pdf.setFontSize(9);
-pdf.setFont(undefined, "normal");
+    doc.text("Donate", 40, startY);
+    startY += 25;
 
-hours.forEach((line, i) => {
-  pdf.text(line, 40, bottomY + i * 10);
-});
-corporateOffices.forEach((line, i) => {
-  pdf.text(line, pageWidth / 2, bottomY + i * 10, { align: "center" });
-});
-contactInfo.forEach((line, i) => {
-  pdf.text(line, pageWidth - 40, bottomY + i * 10, { align: "right" });
-});
+    startY += 4;
+    const text =
+      "Jal Smruti Foundation is a Section 80G approved non profit entity based in India";
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(0, 0, 0);
+
+    const wrappedLines = doc.splitTextToSize(text, maxWidth);
+
+    wrappedLines.forEach((line) => {
+      doc.text(line, marginX, startY);
+      startY += 18;
+    });
+
+    startY += 5;
+
+    doc.setFontSize(12);
+    doc.setFont(undefined, "normal");
+    doc.text(
+      "Your donation to Jal Smruti Foundation is tax deductible",
+      40,
+      startY
+    );
+    startY += 30;
+
+    doc.setFont(undefined, "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+
+    const bankHeader = "Bank Details";
+    doc.setFont(undefined, "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(bankHeader, 40, startY);
+
+    const bankHeaderWidth = doc.getTextWidth(bankHeader);
+    doc.line(40, startY + 2, 40 + bankHeaderWidth, startY + 2); // underline
+    startY += 18;
 
 
-    return pdf.output("blob");
+    doc.setFont(undefined, "normal");
+    const bankLines = [
+      "Account Name: Jal Smruti Foundation",
+      "Bank Name: State Bank of India",
+      "Account Number: 40131834676",
+      "Account Type: Current",
+      "IFSC Code: SBIN0003866",
+      "",
+    ];
+    bankLines.forEach((line) => {
+      doc.text(line, 40, startY);
+      startY += 15;
+    });
+    const upiLabel = "UPI:";
+    doc.setFont(undefined, "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+
+    doc.text(upiLabel, 40, startY);
+    const upiLabelWidth = doc.getTextWidth(upiLabel);
+    doc.line(40, startY + 2, 40 + upiLabelWidth, startY + 2);
+
+    startY += 18;
+    doc.setFont(undefined, "normal");
+    doc.text("jalsmrutifoundation@ybl", 40, startY);
+    startY += 20;
+
+
+    addFooter(doc);
+
+    return doc.output("blob");
   };
 
   const sendPdfToBackend = async () => {
     try {
       const blob = await generatePdfBlob();
-      const fileName = `${form.fullName || "Water Scorecard"} Report.pdf`;
+      const fileName = `${form.fullName || "Water_Scorecard"}_Report.pdf`;
       const formData = new FormData();
-      formData.append("pdf", new File([blob], fileName, { type: "application/pdf" }));
+      formData.append(
+        "pdf",
+        new File([blob], fileName, { type: "application/pdf" })
+      );
       formData.append("email", form.email);
-      formData.append("cc_email", "contact@jalsmruti.org");
+      formData.append("cc_email", "abcd.gmail.com");
 
       const res = await fetch("http://localhost:5000/api/send-pdf-email", {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) {
-        console.error("Failed to send email");
-      } else {
+      if (res.ok) {
         console.log("PDF emailed successfully");
+      } else {
+        console.error("Failed to send email");
       }
     } catch (err) {
       console.error("Error generating/sending PDF", err);
@@ -575,15 +724,19 @@ contactInfo.forEach((line, i) => {
 
   const handleDownloadPdf = async () => {
     const blob = await generatePdfBlob();
-    const fileName = `${form.fullName || "Water Scorecard"} Report.pdf`;
+    const fileName = `${
+      form.fullName || "Water_Management"
+    }_Assessment_Report.pdf`;
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
+    link.href = url;
     link.download = fileName;
+    document.body.appendChild(link);
     link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 100);
+    link.remove();
+    URL.revokeObjectURL(url);
   };
 
-  const hasSentRef = useRef(false);
 
   useEffect(() => {
     if (!hasSentRef.current) {
@@ -592,70 +745,98 @@ contactInfo.forEach((line, i) => {
     }
   }, []);
 
-  containerRefs.current = [];
-
   return (
-    <>
-      <Box ref={addRef} sx={{ backgroundColor: "white", m: 2, p: 2, borderRadius: 2 }}>
-        <Banner />
+    <Box sx={{ padding: 4, maxWidth: 900, margin: "auto" }}>
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Box
+          component="img"
+          src={bannerImage}
+          alt="Banner"
+          sx={{ width: "100%", maxHeight: 150, objectFit: "contain" }}
+        />
+        <Typography variant="h5" sx={{ mt: 2, fontWeight: "bold" }}>
+          Thank you, {form.fullName || "User"} for completing the assessment!
+        </Typography>
       </Box>
 
-<Box sx={{ mx: 2, mb: 2, textAlign: "center" }}>
-  <Typography variant="h4" fontWeight="bold">
-    Thank you, {form.fullName} for your response. <br></br>Here is your Summary Report.
-  </Typography>
-</Box>
+      <Box
+        sx={{
+          backgroundColor: overallColor,
+          color: "white",
+          textAlign: "center",
+          py: 2,
+          mb: 4,
+          borderRadius: 1,
+        }}
+      >
+        <Typography variant="h5" gutterBottom>
+          Overall Water Management Score: {totalScore.toFixed(2)}
+        </Typography>
+        <Typography variant="h6">Maturity Level: {maturity}</Typography>
+      </Box>
 
-<Box sx={{ mx: 2, mb: 4, display: "inline-block", borderRadius: 1, backgroundColor: overallColor, color: "#fff", px: 2, py: 1 }}>
-  <Typography variant="h5" gutterBottom sx={{ marginBottom: 0 }}>
-    Overall Average Score: {avg.toFixed(2)}
-  </Typography>
-  <Typography variant="h6" gutterBottom sx={{ marginTop: 0 }}>
-    Maturity Level: {maturity}
-  </Typography>
-</Box>
+      {sections.map((section) => {
+        const sectionScore = calculateSectionScore(section, form);
+        const color = getColorForScore(sectionScore);
 
-
-
-      {sections.map((section, idx) => {
-        const { score, count } = calculateSectionScore(section, form);
-        const sectionAvg = count > 0 ? score / count : 0;
-        const sectionColor = getColorForScore(sectionAvg);
         return (
           <Box
-            key={idx}
-            ref={addRef}
+            key={section.title}
             sx={{
-              m: 2,
-              p: 2,
-              backgroundColor: sectionColor,
+              marginBottom: 4,
+              border: `2px solid ${color}`,
               borderRadius: 2,
-              color: "#fff",
+              overflow: "hidden",
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-              {section.title} - Average Score: {sectionAvg.toFixed(2)}
-            </Typography>
-            <TableContainer sx={{ backgroundColor: "#fff", borderRadius: 1 }}>
-              <Table size="small" aria-label={`${section.title} results`}>
+            <Box
+              sx={{
+                backgroundColor: color,
+                color: "white",
+                p: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                {section.title} (Average Score: {sectionScore.toFixed(2)})
+              </Typography>
+            </Box>
+
+            <TableContainer>
+              <Table size="small" aria-label={`${section.title} summary`}>
                 <TableHead>
                   <TableRow>
                     <TableCell>Question</TableCell>
-                    <TableCell>Response</TableCell>
+                    <TableCell>Answer</TableCell>
                     <TableCell>Score</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {section.questions.map((q, qidx) => {
+                  {section.questions.map((q) => {
                     const val = form[q.key];
-                    const isNA = q.notApplicableValue && val === q.notApplicableValue;
-                    const numVal = Number(val);
-                    const optionLabel = q.options?.[numVal] ?? (isNA ? "Not Applicable" : "No response");
+                    let answerText = "N/A";
+
+                    if (val !== undefined) {
+                      if (
+                        q.notApplicableValue &&
+                        val === q.notApplicableValue
+                      ) {
+                        answerText = "Not Applicable";
+                      } else if (q.options) {
+                        answerText = q.options[val] || val;
+                      } else {
+                        answerText = val;
+                      }
+                    }
+
                     return (
-                      <TableRow key={qidx}>
+                      <TableRow key={q.key}>
                         <TableCell>{q.label}</TableCell>
-                        <TableCell>{optionLabel}</TableCell>
-                        <TableCell>{isNA ? "-" : !isNaN(numVal) ? numVal : "-"}</TableCell>
+                        <TableCell>{answerText}</TableCell>
+                        <TableCell>
+                          {q.notApplicableValue && val === q.notApplicableValue
+                            ? "-"
+                            : val}
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -666,15 +847,28 @@ contactInfo.forEach((line, i) => {
         );
       })}
 
-      <Box sx={{ textAlign: "center", my: 4 }}>
-        <Button variant="contained" color="primary" onClick={handleDownloadPdf}>
-          Download Report as PDF
+      <Box
+        sx={{
+          textAlign: "center",
+          marginTop: 4,
+          padding: 2,
+          borderTop: "2px solid #154360",
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ marginRight: 2 }}
+          onClick={handleDownloadPdf}
+        >
+          Download PDF Report
         </Button>
-        <Button variant="outlined" color="secondary" onClick={onRestart} sx={{ ml: 2 }}>
+
+        <Button variant="outlined" color="secondary" onClick={onRestart}>
           Submit Another Form
         </Button>
       </Box>
-    </>
+    </Box>
   );
 };
 

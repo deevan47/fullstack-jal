@@ -12,7 +12,6 @@ function Page3({ onNext, onBack, form }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "units") {
-      // Only allow digits
       const digitsOnly = value.replace(/\D/g, "");
       setData((prev) => ({ ...prev, [name]: digitsOnly }));
       setError((prev) => ({ ...prev, [name]: digitsOnly ? "" : "Required" }));

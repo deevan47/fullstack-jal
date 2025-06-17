@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TextField, Button, Paper, Typography, Box } from "@mui/material";
 
-function Page2({ onNext, onBack, form }) {
+function Page2({ onNext, form }) {
   const [data, setData] = useState({
     fullName: form.fullName || "",
     email: form.email || "",
@@ -10,7 +10,6 @@ function Page2({ onNext, onBack, form }) {
   });
   const [error, setError] = useState({});
 
-  // Live validation for each field
   const validateField = (name, value) => {
     switch (name) {
       case "fullName":
@@ -35,9 +34,7 @@ function Page2({ onNext, onBack, form }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Only allow digits for whatsapp field
     if (name === "whatsapp") {
-      // Remove any non-digit characters
       const digitsOnly = value.replace(/\D/g, "");
       setData((prev) => ({ ...prev, [name]: digitsOnly }));
       setError((prev) => ({
