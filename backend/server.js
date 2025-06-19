@@ -134,7 +134,7 @@ const sections = [
       },
       {
         key: 'q3_3',
-        label: '3.3 Status of Groundwater Recharge expressed as percentage of Groundwater extraction',
+        label: '3.3 Status of Groundwater Recharge expressed as % of Groundwater extraction',
         options: [
           '(<20%)',
           '(20-40%)',
@@ -227,21 +227,19 @@ const sections = [
   },
 ];
 
+
 const { Pool } = pg;
 const app = express();
 const upload = multer();
 const port = process.env.PORT || 5000;
 
-// CORS setup
-app.use(
-  cors({
-    origin: [
-      "https://frontend-hgu7.onrender.com"
-    ],
-    methods: ["POST", "OPTIONS"],
-  })
-);
+// CORS setup: Allow only your frontend origin
+app.use(cors({
+  origin: "https://frontend-hgu7.onrender.com",
+  methods: ["POST", "OPTIONS"],
+}));
 
+app.options("*", cors());
 
 app.use(express.json());
 
@@ -262,6 +260,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+app.get("/api/health", (req, res) => {
+  res.json({ status: "Backend is running" });
+});
+
+// Submission endpoint
 app.post("/api/submit", upload.none(), async (req, res) => {
   const formData = req.body;
   
@@ -330,6 +333,7 @@ app.post("/api/submit", upload.none(), async (req, res) => {
   }
 });
 
+// Email PDF endpoint
 app.post("/api/send-pdf-email", upload.single("pdf"), async (req, res) => {
   try {
     const { email, name, cc_email } = req.body;
@@ -370,5 +374,5 @@ Team JalSmruti
 });
 
 app.listen(port, () => {
-  console.log(`Server running on https://frontend-hgu7.onrender.com`);
+  console.log(`Server running on port ${port}`);
 });
