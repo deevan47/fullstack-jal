@@ -231,12 +231,12 @@ const sections = [
   },
 ];
 
+
 app.use(cors({
   origin: process.env.FRONTEND_URL,
   methods: ["POST", "OPTIONS"],
 }));
 app.options("*", cors());
-
 app.use(express.json());
 
 const { Pool } = pg;
@@ -257,12 +257,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 🔹 Optional health check
-app.get("/api/health", (req, res) => {
-  res.json({ status: "Backend is running" });
-});
-
-// 🔹 Form submission endpoint
 app.post("/api/submit", upload.none(), async (req, res) => {
   const form = req.body;
   if (!form.fullName || !form.email) {
@@ -306,17 +300,15 @@ app.post("/api/submit", upload.none(), async (req, res) => {
     res.json({ message: "Form submitted successfully!", submissionId: result.rows[0].id });
   } catch (err) {
     await client.query("ROLLBACK");
-    console.error("DB error:", err);
     res.status(500).json({ message: "Submission failed", error: err.message });
   } finally {
     client.release();
   }
 });
 
-// 🔹 Email PDF endpoint
 app.post("/api/send-pdf-email", upload.single("pdf"), async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, cc_email } = req.body;
     const pdf = req.file;
 
     if (!email || !pdf) {
@@ -326,14 +318,9 @@ app.post("/api/send-pdf-email", upload.single("pdf"), async (req, res) => {
     const mailOptions = {
       from: `"Jal Smruti Foundation" <${process.env.EMAIL_USER}>`,
       to: email,
-      cc: req.body.cc_email || process.env.EMAIL_USER,
+      cc: cc_email || process.env.EMAIL_USER,
       subject: "Your Water Management Assessment Report",
-      text: `Hi,
-
-Thank you for completing our assessment. Please find your report attached.
-
-Regards,
-Team Jal Smruti`,
+      text: `Hi,\n\nThank you for completing our assessment. Please find your report attached.\n\nRegards,\nTeam Jal Smruti`,
       attachments: [
         {
           filename: pdf.originalname,
@@ -345,7 +332,6 @@ Team Jal Smruti`,
     await transporter.sendMail(mailOptions);
     res.json({ message: "Report emailed successfully!" });
   } catch (err) {
-    console.error("Email error:", err);
     res.status(500).json({ error: "Failed to send email", details: err.message });
   }
 });
