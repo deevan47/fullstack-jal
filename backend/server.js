@@ -235,10 +235,13 @@ const port = process.env.PORT || 5000;
 // CORS setup
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://frontend-hgu7.onrender.com",
+    origin: [
+      "https://frontend-hgu7.onrender.com"
+    ],
     methods: ["POST", "OPTIONS"],
   })
 );
+
 
 app.use(express.json());
 
