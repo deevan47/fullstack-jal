@@ -367,5 +367,5 @@ Team JalSmruti
 });
 
 app.listen(port, () => {
-  console.log(`Server running on https://backend-jprs.onrender.com`);
+  console.log(`Server running on https://frontend-hgu7.onrender.com`);
 });
