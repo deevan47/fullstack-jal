@@ -44,9 +44,9 @@ function getDefaultForm() {
     fullName: "",
     email: "",
     whatsapp: "",
-    date: "", 
-    buildingName: "", 
-    mapLink: "", 
+    date: "",
+    buildingName: "",
+    mapLink: "",
     unitsCount: null,
 
     // Initializing question fields as null for backend compatibility
@@ -149,9 +149,11 @@ function App() {
 
       console.log("Sending form data:", formToSend);
 
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://backend-8cq5.onrender.com";
+
       const jsonData = JSON.stringify(formToSend, replacer);
 
-      const response = await fetch("https://backend-8cq5.onrender.com/api/submit", {
+      const response = await fetch(`${BACKEND_URL}/api/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
