@@ -2,10 +2,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
-import pg from "pg";
-import nodemailer from "nodemailer";
 import cors from "cors";
+import pg from "pg";
 import multer from "multer";
+import nodemailer from "nodemailer";
+
+const app = express();
+const upload = multer();
+const port = process.env.PORT || 5000;
 
 const sections = [
   {
@@ -227,28 +231,21 @@ const sections = [
   },
 ];
 
-
-const { Pool } = pg;
-const app = express();
-const upload = multer();
-const port = process.env.PORT || 5000;
-
-// CORS setup: Allow only your frontend origin
 app.use(cors({
-  origin: "https://frontend-hgu7.onrender.com",
+  origin: process.env.FRONTEND_URL,
   methods: ["POST", "OPTIONS"],
 }));
-
 app.options("*", cors());
 
 app.use(express.json());
 
+const { Pool } = pg;
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  port: parseInt(process.env.DB_PORT, 10),
   ssl: process.env.DB_SSL === "true",
 });
 
@@ -260,116 +257,96 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// 🔹 Optional health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "Backend is running" });
 });
 
-// Submission endpoint
+// 🔹 Form submission endpoint
 app.post("/api/submit", upload.none(), async (req, res) => {
-  const formData = req.body;
-  
-  if (!formData.email || !formData.fullName) {
+  const form = req.body;
+  if (!form.fullName || !form.email) {
     return res.status(400).json({ message: "Fullname and email are required." });
   }
 
   const client = await pool.connect();
-
   try {
     await client.query("BEGIN");
 
-    const insertQuery = `
+    const insert = `
       INSERT INTO submissions (
-        fullName, email, q1_1, q1_2, q1_3, q1_4,
+        fullName, email,
+        q1_1, q1_2, q1_3, q1_4,
         q2_1, q2_2, q2_3, q2_4, q2_5, q2_6,
         q3_1, q3_2, q3_3,
         q4_1, q4_2, q4_3,
         q5_1, q5_2, q5_3, q5_4
       ) VALUES (
-        $1, $2, $3, $4, $5, $6,
+        $1, $2,
+        $3, $4, $5, $6,
         $7, $8, $9, $10, $11, $12,
         $13, $14, $15,
         $16, $17, $18,
         $19, $20, $21, $22
-      )
-      RETURNING id
+      ) RETURNING id;
     `;
 
-    const values = [
-      formData.fullName,
-      formData.email,
-      formData.q1_1,
-      formData.q1_2,
-      formData.q1_3,
-      formData.q1_4,
-      formData.q2_1,
-      formData.q2_2,
-      formData.q2_3,
-      formData.q2_4,
-      formData.q2_5,
-      formData.q2_6,
-      formData.q3_1,
-      formData.q3_2,
-      formData.q3_3,
-      formData.q4_1,
-      formData.q4_2,
-      formData.q4_3,
-      formData.q5_1,
-      formData.q5_2,
-      formData.q5_3,
-      formData.q5_4,
+    const vals = [
+      form.fullName, form.email,
+      form.q1_1, form.q1_2, form.q1_3, form.q1_4,
+      form.q2_1, form.q2_2, form.q2_3, form.q2_4, form.q2_5, form.q2_6,
+      form.q3_1, form.q3_2, form.q3_3,
+      form.q4_1, form.q4_2, form.q4_3,
+      form.q5_1, form.q5_2, form.q5_3, form.q5_4,
     ];
 
-    const result = await client.query(insertQuery, values);
-    const submissionId = result.rows[0].id;
-
+    const result = await client.query(insert, vals);
     await client.query("COMMIT");
-    res.status(200).json({ message: "Form submitted successfully!", submissionId });
-  } catch (error) {
+
+    res.json({ message: "Form submitted successfully!", submissionId: result.rows[0].id });
+  } catch (err) {
     await client.query("ROLLBACK");
-    console.error("Error:", error);
-    res.status(500).json({ message: "Failed to submit form", error: error.message });
+    console.error("DB error:", err);
+    res.status(500).json({ message: "Submission failed", error: err.message });
   } finally {
     client.release();
   }
 });
 
-// Email PDF endpoint
+// 🔹 Email PDF endpoint
 app.post("/api/send-pdf-email", upload.single("pdf"), async (req, res) => {
   try {
-    const { email, name, cc_email } = req.body;
-    const pdfFile = req.file;
+    const { email } = req.body;
+    const pdf = req.file;
 
-    if (!email || !pdfFile) {
+    if (!email || !pdf) {
       return res.status(400).json({ error: "Email and PDF file are required" });
     }
 
     const mailOptions = {
       from: `"Jal Smruti Foundation" <${process.env.EMAIL_USER}>`,
       to: email,
-      cc: cc_email || "deevankumar0706@gmail.com",
+      cc: req.body.cc_email || process.env.EMAIL_USER,
       subject: "Your Water Management Assessment Report",
-      text: `Hi ,
+      text: `Hi,
 
-Thank you for completing our Water Management Assessment. Please find your detailed report attached.
-
-This report provides insights into your water management practices and suggestions for improvement.
+Thank you for completing our assessment. Please find your report attached.
 
 Regards,
-Team JalSmruti
-      `,
-      attachments: [{
-        filename: pdfFile.originalname,
-        content: pdfFile.buffer,
-        contentType: "application/pdf"
-      }]
+Team Jal Smruti`,
+      attachments: [
+        {
+          filename: pdf.originalname,
+          content: pdf.buffer,
+        },
+      ],
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Report emailed to:", email);
-    res.status(200).json({ message: "Report sent to your email successfully!" });
-  } catch (error) {
-    console.error("Email sending error:", error);
-    res.status(500).json({ error: "Failed to send email", details: error.message });
+    res.json({ message: "Report emailed successfully!" });
+  } catch (err) {
+    console.error("Email error:", err);
+    res.status(500).json({ error: "Failed to send email", details: err.message });
   }
 });
 
