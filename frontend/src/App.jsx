@@ -153,7 +153,7 @@ function App() {
 
       const jsonData = JSON.stringify(formToSend, replacer);
 
-      const response = await fetch(`${BACKEND_URL}/api/submit`, {
+      const response = await fetch(`https://backend-8cq5.onrender.com/api/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
