@@ -54,7 +54,7 @@ export default function WaterManagementForm() {
 
     setLoading(true);
     try {
-      const res = await fetch("Failed to fetch. Please check your network", {
+      const res = await fetch("https://backend-8cq5.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
