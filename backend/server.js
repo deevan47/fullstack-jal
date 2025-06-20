@@ -11,6 +11,14 @@ const app = express();
 const upload = multer();
 const port = process.env.PORT || 5000;
 
+app.use(cors({
+  origin: "https://frontend-hgu7.onrender.com",  
+  methods: ["POST", "OPTIONS"],               
+  credentials: true,                          
+}));
+
+app.options("*", cors());  
+
 const sections = [
   {
     title: '1. Water Management',
@@ -231,6 +239,8 @@ const sections = [
     ],
   },
 ];
+
+const cors = require('cors');
 
 app.use(cors({
   origin: "https://frontend-hgu7.onrender.com", 
