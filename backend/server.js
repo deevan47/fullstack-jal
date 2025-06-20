@@ -1,16 +1,15 @@
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 dotenv.config();
 
-const express = require("express");
-const cors = require("cors");
-const pg = require("pg");
-const multer = require("multer");
-const nodemailer = require("nodemailer");
+import express from "express";
+import cors from "cors";
+import pg from "pg";
+import multer from "multer";
+import nodemailer from "nodemailer";
 
 const app = express();
 const upload = multer();
 const port = process.env.PORT || 5000;
-
 
 const sections = [
   {
@@ -35,7 +34,8 @@ const sections = [
           'Management + Facility Staff have taken a water pledge',
           'Management + Facility Staff + Tenants have taken a water pledge',
         ],
-      },      {
+      },
+      {
         key: 'q1_3',
         label: '1.3 Status of Water Charter',
         options: [
@@ -231,8 +231,6 @@ const sections = [
     ],
   },
 ];
-
-import cors from "cors";
 
 app.use(cors({
   origin: "https://frontend-hgu7.onrender.com", 
