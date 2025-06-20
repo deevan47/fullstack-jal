@@ -11,6 +11,7 @@ const app = express();
 const upload = multer();
 const port = process.env.PORT || 5000;
 
+
 const sections = [
   {
     title: '1. Water Management',
@@ -231,12 +232,12 @@ const sections = [
   },
 ];
 
-
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL, 
   methods: ["POST", "OPTIONS"],
 }));
-app.options("*", cors());
+app.options("*", cors()); 
+
 app.use(express.json());
 
 const { Pool } = pg;
