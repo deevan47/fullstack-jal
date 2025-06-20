@@ -15,18 +15,16 @@ const port = process.env.PORT || 5000;
 const corsOptions = {
   origin: [
     "https://frontend-hgu7.onrender.com",
-    "http://localhost:3000" // For local development
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"],
   credentials: true,
-  optionsSuccessStatus: 200 // For legacy browser support
+  optionsSuccessStatus: 200 
 };
 
 // Apply CORS middleware
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Enable preflight for all routes
-
+app.options("*", cors(corsOptions)); 
 // Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -268,7 +266,6 @@ const sections = [
   },
 ];
 
-// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
