@@ -1,11 +1,11 @@
-import dotenv from "dotenv";
+const dotenv = require("dotenv");
 dotenv.config();
 
-import express from "express";
-import cors from "cors";
-import pg from "pg";
-import multer from "multer";
-import nodemailer from "nodemailer";
+const express = require("express");
+const cors = require("cors");
+const pg = require("pg");
+const multer = require("multer");
+const nodemailer = require("nodemailer");
 
 const app = express();
 const upload = multer();
@@ -232,7 +232,7 @@ const sections = [
   },
 ];
 
-const cors = require('cors');
+import cors from "cors";
 
 app.use(cors({
   origin: "https://frontend-hgu7.onrender.com", 
