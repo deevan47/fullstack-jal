@@ -11,6 +11,42 @@ const app = express();
 const upload = multer();
 const port = process.env.PORT || 5000;
 
+// Enhanced CORS configuration
+const corsOptions = {
+  origin: [
+    "https://frontend-hgu7.onrender.com",
+    "http://localhost:3000" // For local development
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+  credentials: true,
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Enable preflight for all routes
+
+// Body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Database configuration
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`,
+  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false
+});
+
+// Email transporter configuration
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// Form sections configuration
 const sections = [
   {
     title: '1. Water Management',
@@ -34,7 +70,8 @@ const sections = [
           'Management + Facility Staff have taken a water pledge',
           'Management + Facility Staff + Tenants have taken a water pledge',
         ],
-      },      {
+      },
+      {
         key: 'q1_3',
         label: '1.3 Status of Water Charter',
         options: [
@@ -231,110 +268,140 @@ const sections = [
   },
 ];
 
-
-app.use(cors({
-  origin: "https://frontend-hgu7.onrender.com",
-  methods: ["POST", "OPTIONS"],
-  credentials: true,
-}));
-app.options("*", cors());
-
-app.use(express.json());
-
-const pool = new pg.Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
-  port: parseInt(process.env.DB_PORT, 10),
-  ssl: process.env.DB_SSL === "true",
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
+// Form submission endpoint
 app.post("/api/submit", upload.none(), async (req, res) => {
-  const form = req.body;
-  if (!form.fullName || !form.email) {
-    return res.status(400).json({ message: "FullName and email are required." });
-  }
-
-  const client = await pool.connect();
   try {
-    await client.query("BEGIN");
+    const form = req.body;
+    
+    // Validate required fields
+    if (!form.fullName || !form.email) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Full name and email are required." 
+      });
+    }
 
-    const insertQuery = `
-      INSERT INTO submissions (
-        fullName, email,
-        q1_1, q1_2, q1_3, q1_4,
-        q2_1, q2_2, q2_3, q2_4, q2_5, q2_6,
-        q3_1, q3_2, q3_3,
-        q4_1, q4_2, q4_3,
-        q5_1, q5_2, q5_3, q5_4
-      ) VALUES (
-        $1, $2,
-        $3, $4, $5, $6,
-        $7, $8, $9, $10, $11, $12,
-        $13, $14, $15,
-        $16, $17, $18,
-        $19, $20, $21, $22
-      ) RETURNING id;
-    `;
+    const client = await pool.connect();
+    
+    try {
+      await client.query("BEGIN");
 
-    const vals = [
-      form.fullName, form.email,
-      form.q1_1, form.q1_2, form.q1_3, form.q1_4,
-      form.q2_1, form.q2_2, form.q2_3, form.q2_4, form.q2_5, form.q2_6,
-      form.q3_1, form.q3_2, form.q3_3,
-      form.q4_1, form.q4_2, form.q4_3,
-      form.q5_1, form.q5_2, form.q5_3, form.q5_4,
-    ];
+      const insertQuery = `
+        INSERT INTO submissions (
+          fullName, email,
+          q1_1, q1_2, q1_3, q1_4,
+          q2_1, q2_2, q2_3, q2_4, q2_5, q2_6,
+          q3_1, q3_2, q3_3,
+          q4_1, q4_2, q4_3,
+          q5_1, q5_2, q5_3, q5_4
+        ) VALUES (
+          $1, $2,
+          $3, $4, $5, $6,
+          $7, $8, $9, $10, $11, $12,
+          $13, $14, $15,
+          $16, $17, $18,
+          $19, $20, $21, $22
+        ) RETURNING id;
+      `;
 
-    const result = await client.query(insertQuery, vals);
-    await client.query("COMMIT");
+      const values = [
+        form.fullName, form.email,
+        form.q1_1, form.q1_2, form.q1_3, form.q1_4,
+        form.q2_1, form.q2_2, form.q2_3, form.q2_4, form.q2_5, form.q2_6,
+        form.q3_1, form.q3_2, form.q3_3,
+        form.q4_1, form.q4_2, form.q4_3,
+        form.q5_1, form.q5_2, form.q5_3, form.q5_4,
+      ];
 
-    res.json({ message: "Form submitted successfully!", submissionId: result.rows[0].id });
+      const result = await client.query(insertQuery, values);
+      await client.query("COMMIT");
+
+      res.status(201).json({ 
+        success: true,
+        message: "Form submitted successfully!", 
+        submissionId: result.rows[0].id 
+      });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      console.error("Database error:", err);
+      res.status(500).json({ 
+        success: false,
+        message: "Submission failed", 
+        error: err.message 
+      });
+    } finally {
+      client.release();
+    }
   } catch (err) {
-    await client.query("ROLLBACK");
-    console.error("DB error:", err);
-    res.status(500).json({ message: "Submission failed", error: err.message });
-  } finally {
-    client.release();
+    console.error("Server error:", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Internal server error",
+      error: err.message 
+    });
   }
 });
 
+// PDF email endpoint
 app.post("/api/send-pdf-email", upload.single("pdf"), async (req, res) => {
-  const { email, cc_email } = req.body;
-  const pdf = req.file;
-
-  if (!email || !pdf) {
-    return res.status(400).json({ error: "Email and PDF file are required." });
-  }
-
   try {
-    await transporter.sendMail({
+    const { email, cc_email } = req.body;
+    const pdf = req.file;
+
+    if (!email || !pdf) {
+      return res.status(400).json({ 
+        success: false,
+        error: "Email and PDF file are required." 
+      });
+    }
+
+    const mailOptions = {
       from: `"Jal Smruti Foundation" <${process.env.EMAIL_USER}>`,
       to: email,
       cc: cc_email || process.env.EMAIL_USER,
       subject: "Your Water Management Assessment Report",
       text: "Hi,\n\nThank you for completing our assessment. Please find your report attached.\n\nRegards,\nTeam Jal Smruti",
       attachments: [
-        { filename: pdf.originalname, content: pdf.buffer }
+        { 
+          filename: pdf.originalname || "water_management_report.pdf", 
+          content: pdf.buffer 
+        }
       ],
-    });
+    };
 
-    res.json({ message: "Report emailed successfully!" });
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ 
+      success: true,
+      message: "Report emailed successfully!" 
+    });
   } catch (err) {
     console.error("Email error:", err);
-    res.status(500).json({ error: "Failed to send email", details: err.message });
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to send email", 
+      details: err.message 
+    });
   }
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ 
+    success: false,
+    message: "Internal server error",
+    error: err.message 
+  });
+});
+
+// Start server
 app.listen(port, () => {
-  console.log(`Server running on port ${port} `);
+  console.log(`Server running on port ${port}`);
+  console.log(`CORS configured for: ${corsOptions.origin.join(', ')}`);
 });
