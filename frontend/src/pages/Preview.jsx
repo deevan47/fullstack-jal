@@ -13,9 +13,9 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
+  DialogActions
 } from '@mui/material';
-import sections from './sections';
+import sections from './sections'; 
 
 function Preview({ form, onEdit, onSubmit }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -37,7 +37,7 @@ function Preview({ form, onEdit, onSubmit }) {
     { label: 'Date of Assessment', value: form.date },
     { label: 'Apartment Name', value: form.apartmentName },
     { label: 'Google Map Link', value: form.mapLink },
-    { label: 'Units', value: form.unitsCount },
+    { label: 'Units', value: form.units }
   ];
 
   return (
@@ -57,14 +57,8 @@ function Preview({ form, onEdit, onSubmit }) {
               <TableBody>
                 {userDetails.map((item) => (
                   <TableRow key={item.label}>
-                    <TableCell sx={{ fontWeight: 600, width: '30%' }}>
-                      {item.label}
-                    </TableCell>
-                    <TableCell>
-                      {item.value !== undefined && item.value !== null
-                        ? item.value
-                        : '-'}
-                    </TableCell>
+                    <TableCell sx={{ fontWeight: 600, width: '30%' }}>{item.label}</TableCell>
+                    <TableCell>{item.value !== undefined && item.value !== null ? item.value : '-'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -75,10 +69,7 @@ function Preview({ form, onEdit, onSubmit }) {
         {/* Sections & Answers */}
         {sections.map((section) => (
           <Box key={section.title} sx={{ mb: 5 }}>
-            <Typography
-              variant="h6"
-              sx={{ color: '#1976d2', mb: 2, fontWeight: 500 }}
-            >
+            <Typography variant="h6" sx={{ color: '#1976d2', mb: 2, fontWeight: 500 }}>
               {section.title}
             </Typography>
             <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
@@ -111,6 +102,7 @@ function Preview({ form, onEdit, onSubmit }) {
             variant="contained"
             color="success"
             onClick={() => {
+              console.log("Preview.jsx: Opening confirm dialog");
               setConfirmOpen(true);
             }}
           >
@@ -130,8 +122,9 @@ function Preview({ form, onEdit, onSubmit }) {
               color="success"
               variant="contained"
               onClick={() => {
+                console.log("Preview.jsx: Confirmed, submitting...");
                 setConfirmOpen(false);
-                onSubmit();
+                onSubmit(); 
               }}
             >
               Yes, Submit
