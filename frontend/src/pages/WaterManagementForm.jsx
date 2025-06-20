@@ -86,7 +86,7 @@ export default function WaterManagementForm() {
           Full Name*:
           <input
             type="text"
-            name="fullname"
+            name="fullName"
             value={formData.fullName}
             onChange={handleChange}
             required
@@ -148,7 +148,7 @@ export default function WaterManagementForm() {
           Units Count:
           <input
             type="number"
-            name="unitscount"
+            name="units"
             value={formData.unitscount}
             onChange={handleChange}
             min="0"
