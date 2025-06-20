@@ -232,10 +232,14 @@ const sections = [
   },
 ];
 
+const cors = require('cors');
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL, 
+  origin: "https://frontend-hgu7.onrender.com", 
   methods: ["POST", "OPTIONS"],
+  credentials: true 
 }));
+
 app.options("*", cors()); 
 
 app.use(express.json());
