@@ -7,18 +7,9 @@ import pg from "pg";
 import multer from "multer";
 import nodemailer from "nodemailer";
 
-
 const app = express();
 const upload = multer();
 const port = process.env.PORT || 5000;
-
-app.use(cors({
-  origin: "https://frontend-hgu7.onrender.com",  
-  methods: ["POST", "OPTIONS"],               
-  credentials: true,                          
-}));
-
-app.options("*", cors());  
 
 const sections = [
   {
@@ -43,8 +34,7 @@ const sections = [
           'Management + Facility Staff have taken a water pledge',
           'Management + Facility Staff + Tenants have taken a water pledge',
         ],
-      },
-      {
+      },      {
         key: 'q1_3',
         label: '1.3 Status of Water Charter',
         options: [
@@ -241,20 +231,17 @@ const sections = [
   },
 ];
 
-const cors = require('cors');
 
 app.use(cors({
-  origin: "https://frontend-hgu7.onrender.com", 
+  origin: "https://frontend-hgu7.onrender.com",
   methods: ["POST", "OPTIONS"],
-  credentials: true 
+  credentials: true,
 }));
-
-app.options("*", cors()); 
+app.options("*", cors());
 
 app.use(express.json());
 
-const { Pool } = pg;
-const pool = new Pool({
+const pool = new pg.Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
@@ -274,14 +261,14 @@ const transporter = nodemailer.createTransport({
 app.post("/api/submit", upload.none(), async (req, res) => {
   const form = req.body;
   if (!form.fullName || !form.email) {
-    return res.status(400).json({ message: "Fullname and email are required." });
+    return res.status(400).json({ message: "FullName and email are required." });
   }
 
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
 
-    const insert = `
+    const insertQuery = `
       INSERT INTO submissions (
         fullName, email,
         q1_1, q1_2, q1_3, q1_4,
@@ -308,12 +295,13 @@ app.post("/api/submit", upload.none(), async (req, res) => {
       form.q5_1, form.q5_2, form.q5_3, form.q5_4,
     ];
 
-    const result = await client.query(insert, vals);
+    const result = await client.query(insertQuery, vals);
     await client.query("COMMIT");
 
     res.json({ message: "Form submitted successfully!", submissionId: result.rows[0].id });
   } catch (err) {
     await client.query("ROLLBACK");
+    console.error("DB error:", err);
     res.status(500).json({ message: "Submission failed", error: err.message });
   } finally {
     client.release();
@@ -321,35 +309,32 @@ app.post("/api/submit", upload.none(), async (req, res) => {
 });
 
 app.post("/api/send-pdf-email", upload.single("pdf"), async (req, res) => {
+  const { email, cc_email } = req.body;
+  const pdf = req.file;
+
+  if (!email || !pdf) {
+    return res.status(400).json({ error: "Email and PDF file are required." });
+  }
+
   try {
-    const { email, cc_email } = req.body;
-    const pdf = req.file;
-
-    if (!email || !pdf) {
-      return res.status(400).json({ error: "Email and PDF file are required" });
-    }
-
-    const mailOptions = {
+    await transporter.sendMail({
       from: `"Jal Smruti Foundation" <${process.env.EMAIL_USER}>`,
       to: email,
       cc: cc_email || process.env.EMAIL_USER,
       subject: "Your Water Management Assessment Report",
-      text: `Hi,\n\nThank you for completing our assessment. Please find your report attached.\n\nRegards,\nTeam Jal Smruti`,
+      text: "Hi,\n\nThank you for completing our assessment. Please find your report attached.\n\nRegards,\nTeam Jal Smruti",
       attachments: [
-        {
-          filename: pdf.originalname,
-          content: pdf.buffer,
-        },
+        { filename: pdf.originalname, content: pdf.buffer }
       ],
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
     res.json({ message: "Report emailed successfully!" });
   } catch (err) {
+    console.error("Email error:", err);
     res.status(500).json({ error: "Failed to send email", details: err.message });
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Server running on port ${port} `);
 });
