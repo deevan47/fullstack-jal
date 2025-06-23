@@ -25,14 +25,15 @@ const corsOptions = {
 // Apply CORS middleware
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions)); 
+
 // Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Database configuration
+// Database configuration using only DATABASE_URL from .env
 const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`,
-  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
 // Email transporter configuration
