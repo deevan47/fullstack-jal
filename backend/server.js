@@ -279,7 +279,7 @@ app.post("/api/submit", upload.none(), async (req, res) => {
 
 
     INSERT INTO submissions (
-  fullname, email, whatsapp, date, apartmentname, maplink, units,
+  fullName, email, whatsapp, date, apartmentname, maplink, units,
   q1_1, q1_2, q1_3, q1_4,
   q2_1, q2_2, q2_3, q2_4, q2_5, q2_6,
   q3_1, q3_2, q3_3,
@@ -297,7 +297,7 @@ app.post("/api/submit", upload.none(), async (req, res) => {
 
       const insertQuery = `
   INSERT INTO submissions (
-    fullname, email, whatsapp, date, apartmentname, maplink, units,
+    fullName, email, whatsapp, date, apartmentname, maplink, units,
     q1_1, q1_2, q1_3, q1_4,
     q2_1, q2_2, q2_3, q2_4, q2_5, q2_6,
     q3_1, q3_2, q3_3,
