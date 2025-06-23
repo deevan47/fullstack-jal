@@ -277,23 +277,42 @@ app.post("/api/submit", upload.none(), async (req, res) => {
     try {
       await client.query("BEGIN");
 
+
+    INSERT INTO submissions (
+  fullname, email, whatsapp, date, apartmentname, maplink, units,
+  q1_1, q1_2, q1_3, q1_4,
+  q2_1, q2_2, q2_3, q2_4, q2_5, q2_6,
+  q3_1, q3_2, q3_3,
+  q4_1, q4_2, q4_3,
+  q5_1, q5_2, q5_3, q5_4
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7,
+  $8, $9, $10, $11,
+  $12, $13, $14, $15, $16, $17,
+  $18, $19, $20,
+  $21, $22, $23,
+  $24, $25, $26, $27
+) RETURNING id;
+
+
       const insertQuery = `
-        INSERT INTO submissions (
-          "fullName", "email", "whatsapp", "date", "apartmentName", "mapLink", "units",
-          "q1_1", "q1_2", "q1_3", "q1_4",
-          "q2_1", "q2_2", "q2_3", "q2_4", "q2_5", "q2_6",
-          "q3_1", "q3_2", "q3_3",
-          "q4_1", "q4_2", "q4_3",
-          "q5_1", "q5_2", "q5_3", "q5_4"
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7,
-          $8, $9, $10, $11,
-          $12, $13, $14, $15, $16, $17,
-          $18, $19, $20,
-          $21, $22, $23,
-          $24, $25, $26, $27
-        ) RETURNING id;
-      `;
+  INSERT INTO submissions (
+    fullname, email, whatsapp, date, apartmentname, maplink, units,
+    q1_1, q1_2, q1_3, q1_4,
+    q2_1, q2_2, q2_3, q2_4, q2_5, q2_6,
+    q3_1, q3_2, q3_3,
+    q4_1, q4_2, q4_3,
+    q5_1, q5_2, q5_3, q5_4
+  ) VALUES (
+    $1, $2, $3, $4, $5, $6, $7,
+    $8, $9, $10, $11,
+    $12, $13, $14, $15, $16, $17,
+    $18, $19, $20,
+    $21, $22, $23,
+    $24, $25, $26, $27
+  ) RETURNING id;
+`;
+
 
       const values = [
         form.fullName, form.email, form.whatsapp, form.date, form.apartmentName, form.mapLink, form.units,
