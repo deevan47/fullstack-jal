@@ -289,32 +289,34 @@ app.post("/api/submit", upload.none(), async (req, res) => {
     try {
       await client.query("BEGIN");
 
-const insertQuery = `
+    const insertQuery = `
   INSERT INTO submissions (
-    full_name, email,
+    full_name, email, whatsapp, units, apartment_name, map_link, date_of_assessment,
     q1_1, q1_2, q1_3, q1_4,
     q2_1, q2_2, q2_3, q2_4, q2_5, q2_6,
     q3_1, q3_2, q3_3,
     q4_1, q4_2, q4_3,
     q5_1, q5_2, q5_3, q5_4
   ) VALUES (
-    $1, $2,
-    $3, $4, $5, $6,
-    $7, $8, $9, $10, $11, $12,
-    $13, $14, $15,
-    $16, $17, $18,
-    $19, $20, $21, $22
+    $1, $2, $3, $4, $5, $6, $7,
+    $8, $9, $10, $11,
+    $12, $13, $14, $15, $16, $17,
+    $18, $19, $20,
+    $21, $22, $23,
+    $24, $25, $26, $27
   ) RETURNING id;
 `;
 
-const values = [
-  form.fullName, form.email,
+
+    const values = [
+  form.fullName, form.email, form.whatsapp, form.units, form.apartmentName, form.mapLink, form.date,
   form.q1_1, form.q1_2, form.q1_3, form.q1_4,
   form.q2_1, form.q2_2, form.q2_3, form.q2_4, form.q2_5, form.q2_6,
   form.q3_1, form.q3_2, form.q3_3,
   form.q4_1, form.q4_2, form.q4_3,
   form.q5_1, form.q5_2, form.q5_3, form.q5_4,
 ];
+
 
       const result = await client.query(insertQuery, values);
       await client.query("COMMIT");
